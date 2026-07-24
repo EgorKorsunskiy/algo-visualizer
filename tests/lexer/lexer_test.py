@@ -12,13 +12,13 @@ class TestLexer:
 
     def _run_and_compare_lexer(self, lexer, input, expected_tokens):
         tokens = lexer.parse(input)
-        tokens = lexer.merge_coupled_tokens(tokens)
+        tokens = lexer.tokens_merge_helper(tokens)
         print("Actual result: ", list(map(lambda token: getTokenType(token), tokens)))
         print("Expected result: ", expected_tokens)
         assert compareLists(list(map(lambda token: getTokenType(token), tokens)), expected_tokens)
 
     def testTokens(self, lexer):
-        input = """<;>,!<=;!=;="""
+        input = '''<;>,!<=;!=;='"true false'''
         expected_tokens = [
             TokenTypes.LT,
             TokenTypes.SEMICOL,
@@ -30,12 +30,16 @@ class TestLexer:
             TokenTypes.NEQ,
             TokenTypes.SEMICOL,
             TokenTypes.ASSIGN,
+            TokenTypes.QUOTE,
+            TokenTypes.DOUBLE_QUOTE,
+            TokenTypes.TRUE,
+            TokenTypes.FALSE,
             TokenTypes.EOF
         ]
         self._run_and_compare_lexer(lexer, input, expected_tokens)
 
     def testLiterals(self, lexer):
-        input = """(2+3546)-5*66/70"""
+        input = '''(2+3546)-5*66/70;"test"'''
         expected_tokens = [
             TokenTypes.LPAREN,
             TokenTypes.INT,
@@ -48,6 +52,8 @@ class TestLexer:
             TokenTypes.INT,
             TokenTypes.DIVIDE,
             TokenTypes.INT,
+            TokenTypes.SEMICOL,
+            TokenTypes.IDENT,
             TokenTypes.EOF
         ]
         self._run_and_compare_lexer(lexer, input, expected_tokens)

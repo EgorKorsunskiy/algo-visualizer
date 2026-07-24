@@ -24,6 +24,8 @@ class TokenTypes(Enum):
     RPAREN = auto()
     LPAREN = auto()
     NOT = auto()
+    QUOTE = auto()
+    DOUBLE_QUOTE = auto()
     # keywords
     TYPE = auto()
     FOR = auto()
@@ -37,6 +39,8 @@ class TokenTypes(Enum):
     # every number is int & every string is IDENT. It's up to parser to determine which is identifier and which is literal
     IDENT = auto()
     INT = auto()
+    TRUE = auto()
+    FALSE = auto()
     # internal tokens
     PARSE_BREAK = auto()
     EOF = auto()
@@ -57,6 +61,8 @@ string_to_token_map = {
     "break": {"token_type": TokenTypes.BREAK},
     "continue": {"token_type": TokenTypes.CONTINUE},
     "ident": {"token_type": TokenTypes.IDENT},
+    "true": {"token_type": TokenTypes.TRUE},
+    "false": {"token_type": TokenTypes.FALSE},
     "=": {"token_type": TokenTypes.ASSIGN},
     ">": {"token_type": TokenTypes.GT},
     "<": {"token_type": TokenTypes.LT},
@@ -71,6 +77,8 @@ string_to_token_map = {
     "(": {"token_type": TokenTypes.LPAREN},
     ")": {"token_type": TokenTypes.RPAREN},
     "!": {"token_type": TokenTypes.NOT},
+    "'": {"token_type": TokenTypes.QUOTE},
+    '"': {"token_type": TokenTypes.DOUBLE_QUOTE},
 }
 
 merge_rules = {
@@ -82,4 +90,9 @@ merge_rules = {
     f'{TokenTypes.MIN}_{TokenTypes.MIN}': {"token_type": TokenTypes.DEC},
     f'{TokenTypes.ELSE}_{TokenTypes.IF}': {"token_type": TokenTypes.ELIF},
     f'{TokenTypes.IDENT}_{TokenTypes.LPAREN}': {"token_type": TokenTypes.FN},
+    f'{TokenTypes.IDENT}_{TokenTypes.LPAREN}': {"token_type": TokenTypes.FN},
+    f'{TokenTypes.QUOTE}_{TokenTypes.IDENT}': {"token_type": TokenTypes.IDENT},
+    f'{TokenTypes.DOUBLE_QUOTE}_{TokenTypes.IDENT}': {"token_type": TokenTypes.IDENT},
+    f'{TokenTypes.IDENT}_{TokenTypes.QUOTE}': {"token_type": TokenTypes.IDENT},
+    f'{TokenTypes.IDENT}_{TokenTypes.DOUBLE_QUOTE}': {"token_type": TokenTypes.IDENT},
 }

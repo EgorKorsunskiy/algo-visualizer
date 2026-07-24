@@ -7,7 +7,7 @@ class Lexer:
     def __init__(self) -> None:
         #TODO: probably allow for selecting languages different from cpp
         pass
-    def merge_coupled_tokens(self, tokens: List) -> List:
+    def merge_tokens(self, tokens: List) -> List:
         new_tokens = []
         last_insert_index = -1
         for i in range(1,len(tokens)):
@@ -25,6 +25,11 @@ class Lexer:
             new_tokens.append(tokens[-1])
         
         return new_tokens
+    
+    def tokens_merge_helper(self, tokens, iter=2):
+        for _ in range(iter):
+            tokens = self.merge_tokens(tokens)
+        return tokens
 
     def parse(self, input_string: str) -> List:
         tokens = []

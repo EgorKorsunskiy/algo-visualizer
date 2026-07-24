@@ -1,38 +1,55 @@
-class InfixExprNode:
-    def __init__(self, tok=None, left=None, right=None) -> None:
+from tests.test_utils import compareTokens
+
+class ExprNode:
+    def __init__(self, tok=None) -> None:
         self.tok = tok
+    def __repr__(self) -> str:
+        return f"{self.tok}"
+    def __eq__(self, other: object) -> bool:
+        if not hasattr(other, 'tok'):
+            return False
+        # for now it's enough to just compare tokens
+        return compareTokens(self.tok, other.tok)
+class InfixExprNode(ExprNode):
+    def __init__(self, tok=None, left=None, right=None) -> None:
+        super().__init__(tok)
         self.left = left
         self.right = right
-    def __repr__(self) -> str:
-        return f"{self.tok} {self.left} {self.right}"
 
-class PrefixExprNode:
+class PrefixExprNode(ExprNode):
     def __init__(self, tok=None, right=None) -> None:
-        self.tok = tok
+        super().__init__(tok)
         self.right = right
-    def __repr__(self) -> str:
-        return f"{self.tok} {self.right}"
-
-class CallExprNode:
+class SuffixExprNode(ExprNode):
+    def __init__(self, tok=None, left=None) -> None:
+        super().__init__(tok)
+        self.left = left
+class CallExprNode(ExprNode):
     def __init__(self, tok=None, params=None) -> None:
-        self.tok = tok
+        super().__init__(tok)
         self.params = params
-    def __repr__(self) -> str:
-        return f"{self.tok} {" ".join(str(param for param in self.params))}"
+
+class AtomicExprNode(ExprNode):
+    def __init__(self, tok=None) -> None:
+        super().__init__(tok)
 
 class ProgrammeNode:
     def __init__(self) -> None:
         self.stmts = []
-    def __str__(self) -> str:
-        return "\n\n".join(str(stmt) for stmt in self.stmts)
+    def __repr__(self) -> str:
+        return "\n".join(str(stmt) for stmt in self.stmts)
 
 class InitStmt:
-    def __init__(self) -> None:
-        self.type = None
-        self.name = None
-        self.value = None
+    def __init__(self, type=None, name=None, value=None) -> None:
+        self.type = type
+        self.name = name
+        self.value = value
     def __repr__(self) -> str:
-        return f"type: {self.type}\n name: {self.name}\n value: {self.value}\n"
+        return f"type: {self.type} name: {self.name} value: {self.value}"
+    def __eq__(self, other: object) -> bool:
+        if not hasattr(other, 'type') or not hasattr(other, 'name'):
+            return False
+        return self.type == other.type and self.name == other.name
 
 class LoopStmt:
     def __init__(self) -> None:

@@ -2,24 +2,13 @@ from lexer.main import Lexer
 from parser.main import Parser
 
 FRAGMENT = """
-    if(5<6) {
-        int i = 0;
-    }
-    else if(10 > 6 || 8 > 0) {
-        float i = 2;
-    }
-    else if(1) {
-        float i = 2;
-    }
-    else {
-        int i = 1;
-    }
+void fn_name(int a, string b) { int c = 0; }
 """
 
 def main():
     lexer = Lexer()
     tokens = lexer.parse(FRAGMENT)
-    tokens = lexer.merge_coupled_tokens(tokens)
+    tokens = lexer.tokens_merge_helper(tokens)
     parser = Parser()
     ast = parser.parse(tokens)
     print(ast)

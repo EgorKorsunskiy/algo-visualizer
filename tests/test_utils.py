@@ -5,3 +5,16 @@ def compareLists(listA, listB):
         if listA[i] != listB[i]:
             return False
     return True
+
+def inOrderTraverseAST(node, nodes=None):
+    if nodes is None:
+        nodes = []
+    if getattr(node, "left", None) is not None:
+        inOrderTraverseAST(node.left, nodes)
+    nodes.append(node)
+    if getattr(node, "right", None) is not None:
+        inOrderTraverseAST(node.right, nodes)
+    return nodes
+
+def compareTokens(tokenA, tokenB):
+    return compareLists(list(tokenA.values()), list(tokenB.values()))
