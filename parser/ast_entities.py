@@ -33,11 +33,14 @@ class AtomicExprNode(ExprNode):
     def __init__(self, tok=None) -> None:
         super().__init__(tok)
 
-class ProgrammeNode:
+class BlockStmt:
+    def __init__(self, stmts=None) -> None:
+        if stmts == None:
+            stmts = []
+        self.stmts = stmts
+class ProgrammeNode(BlockStmt):
     def __init__(self) -> None:
-        self.stmts = []
-    def __repr__(self) -> str:
-        return "\n".join(str(stmt) for stmt in self.stmts)
+        super().__init__()
 
 class InitStmt:
     def __init__(self, type=None, name=None, value=None) -> None:
@@ -54,31 +57,31 @@ class InitStmt:
 class LoopStmt:
     def __init__(self) -> None:
         self.condition = None
-        self.body = []
+        self.body = None
     def __repr__(self) -> str:
-        return f"condition: {self.condition}\n {"\n".join(str(stmt) for stmt in self.body)}\n"
+        return f"condition: {self.condition}\n"
 
 class ConditionStmt:
     def __init__(self) -> None:
         self.condition = None
-        self.thenBody = []
+        self.thenBody = None
     def __repr__(self) -> str:
-        return f"{self.condition}\n {"\n".join(str(stmt) for stmt in self.thenBody)}\n"
+        return f"{self.condition}\n"
 
 class IfStmt(ConditionStmt):
     def __init__(self) -> None:
         super().__init__()
-        self.rejectBody = []
-        self.alternatives: ConditionStmt = []
+        self.rejectBody = None
+        self.alternatives: ConditionStmt = None
     def __repr__(self) -> str:
         base = super().__repr__()
-        return f"{base}{"\n".join(str(stmt) for stmt in self.rejectBody)}\n {"\n".join(str(stmt) for stmt in self.alternatives)}\n"
+        return f"{base}\n"
 
 class FuncStatement:
     def __init__(self) -> None:
         self.type = None
         self.name = None
         self.args = []
-        self.body = []
+        self.body = None
     def __repr__(self) -> str:
-        return f"{self.type}\n {self.name}\n {" ".join(str(arg) for arg in self.args)} {"\n".join(str(stmt) for stmt in self.body)}"
+        return f"{self.type}\n {self.name}\n {" ".join(str(arg) for arg in self.args)}"

@@ -1,5 +1,5 @@
 from lexer.token_lists import TokenTypes
-from parser.ast_entities import ConditionStmt, FuncStatement, IfStmt, InitStmt, LoopStmt, ProgrammeNode
+from parser.ast_entities import BlockStmt, ConditionStmt, FuncStatement, IfStmt, InitStmt, LoopStmt, ProgrammeNode
 from parser.expression_parser import LOWEST, PrattParser
 from utils.main import getTokenType
 
@@ -58,7 +58,7 @@ class Parser:
                 bodyStmts.append(stmt)
         self.next() # skip PARSE_BREAK
         self.next() # skip closing RBRACE
-        return bodyStmts
+        return BlockStmt(bodyStmts)
 
     def parseInitLeftSide(self):
         #TODO: add support for pointers && probably different flow for func args
@@ -184,11 +184,11 @@ class Parser:
 
     def parseIfStmt(self):
         conditionStmt = self.parseConditionStmt()
-        alterntatives = []
-        rejectBody = []
+        alterntatives = BlockStmt()
+        rejectBody = BlockStmt()
 
         while getTokenType(self.pick()) == TokenTypes.ELIF:
-            alterntatives.append(self.parseConditionStmt())
+            alterntatives.stmts.append(self.parseConditionStmt())
         if getTokenType(self.pick()) == TokenTypes.ELSE:
             self.next()
             self.expect(TokenTypes.LBRACE)
