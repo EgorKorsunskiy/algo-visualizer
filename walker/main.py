@@ -1,20 +1,32 @@
-from re import L
 from lexer.token_lists import TokenTypes
-from parser.ast_entities import AssignExprNode, AtomicExprNode, BlockStmt, CallExprNode, FuncStatement, InfixExprNode, InitStmt, PrefixExprNode, ProgrammeNode, ReturnStatement, SuffixExprNode
+from parser.ast_entities import (
+    AssignExprNode,
+    AtomicExprNode,
+    BlockStmt,
+    CallExprNode,
+    FuncStatement,
+    InfixExprNode,
+    InitStmt,
+    PrefixExprNode,
+    ProgrammeNode,
+    ReturnStatement,
+    SuffixExprNode,
+)
 from utils.main import getTokenType
 from walker.environment import Environment
+
 
 class Walker:
     def __init__(self) -> None:
         self.log = []
 
     def evalLiteral(self, node, env: Environment):
-        if 'value' in node:
-            stored_val = env.get(node['value'])
+        if "value" in node:
+            stored_val = env.get(node["value"])
             if stored_val is not None:
                 return stored_val
-            return node['value']
-        raise Exception('Literal token has no value property')
+            return node["value"]
+        raise Exception("Literal token has no value property")
 
     def evalInfixExpr(self, node, env: Environment):
         match getTokenType(node.tok):
@@ -28,42 +40,42 @@ class Walker:
                 return self.eval(node.left, env) // self.eval(node.right, env)
             case TokenTypes.MOD:
                 return self.eval(node.left, env) % self.eval(node.right, env)
-    
+
     def evalPrefixExpr(self, node, env: Environment):
         match getTokenType(node.tok):
             case TokenTypes.MIN:
                 return -self.eval(node.right, env)
             case TokenTypes.INC:
-                return self.eval(node.right, env)+1
+                return self.eval(node.right, env) + 1
             case TokenTypes.DEC:
-                return self.eval(node.right, env)-1
-    
+                return self.eval(node.right, env) - 1
+
     def evalSuffixExpr(self, node, env: Environment):
         match getTokenType(node.tok):
             case TokenTypes.INC:
-                return self.eval(node.left, env)+1
+                return self.eval(node.left, env) + 1
             case TokenTypes.DEC:
-                return self.eval(node.left, env)-1
+                return self.eval(node.left, env) - 1
 
     def evalAssignExpr(self, node, env: Environment):
         evaluated_value = self.eval(node.right, env)
         if not isinstance(node.left, AtomicExprNode):
             raise Exception("Invalid left side of =")
-        env.set(node.left.tok['value'], evaluated_value)
+        env.set(node.left.tok["value"], evaluated_value)
 
     def evalInitStmt(self, node, env: Environment) -> None:
         evaluated_value = self.eval(node.value, env)
-        env.set(node.name['value'], evaluated_value)
-    
+        env.set(node.name["value"], evaluated_value)
+
     def evalFnLiteral(self, node, env: Environment) -> None:
-        env.set(node.name['value'], node)
-    
+        env.set(node.name["value"], node)
+
     def evalFnCallExpr(self, node, env: Environment):
-        fn = env.get(node.tok['value'])
+        fn = env.get(node.tok["value"])
         fn_env = Environment(outer=env)
         for i in range(len(node.params)):
             evaluated_value = self.eval(node.params[i], env)
-            fn_env.set(fn.args[i].name['value'], evaluated_value)
+            fn_env.set(fn.args[i].name["value"], evaluated_value)
         return self.eval(fn.body, fn_env)
 
     def parseReturnStmt(self, node, env: Environment):

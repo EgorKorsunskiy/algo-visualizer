@@ -16,6 +16,7 @@ FRAGMENT = """
     square(add(2, 3));
 """
 
+
 def main():
     lexer = Lexer()
     tokens = lexer.parse(FRAGMENT)
@@ -26,6 +27,7 @@ def main():
     walker = Walker()
     outputs = walker.eval(ast, env)
     print(outputs)
+
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,5 @@
-from binascii import Incomplete
-from enum import Enum,auto
+from enum import Enum, auto
+
 
 class TokenTypes(Enum):
     # operations
@@ -47,17 +47,18 @@ class TokenTypes(Enum):
     EOF = auto()
     FN = auto()
 
+
 string_to_token_map = {
     "for": {"token_type": TokenTypes.FOR},
     "while": {"token_type": TokenTypes.WHILE},
     "if": {"token_type": TokenTypes.IF},
     "else": {"token_type": TokenTypes.ELSE},
-    "int": {"token_type": TokenTypes.TYPE, "value": 'int'},
-    "float": {"token_type": TokenTypes.TYPE, "value": 'float'},
-    "bool": {"token_type": TokenTypes.TYPE, "value": 'bool'},
-    "string": {"token_type": TokenTypes.TYPE, "value": 'string'},
-    "char": {"token_type": TokenTypes.TYPE, "value": 'char'},
-    "void": {"token_type": TokenTypes.TYPE, "value": 'void'},
+    "int": {"token_type": TokenTypes.TYPE, "value": "int"},
+    "float": {"token_type": TokenTypes.TYPE, "value": "float"},
+    "bool": {"token_type": TokenTypes.TYPE, "value": "bool"},
+    "string": {"token_type": TokenTypes.TYPE, "value": "string"},
+    "char": {"token_type": TokenTypes.TYPE, "value": "char"},
+    "void": {"token_type": TokenTypes.TYPE, "value": "void"},
     "return": {"token_type": TokenTypes.RETURN},
     "break": {"token_type": TokenTypes.BREAK},
     "continue": {"token_type": TokenTypes.CONTINUE},
@@ -84,16 +85,16 @@ string_to_token_map = {
 }
 
 merge_rules = {
-    f'{TokenTypes.LT}_{TokenTypes.ASSIGN}': {"token_type": TokenTypes.LTE},
-    f'{TokenTypes.GT}_{TokenTypes.ASSIGN}': {"token_type": TokenTypes.GTE},
-    f'{TokenTypes.ASSIGN}_{TokenTypes.ASSIGN}': {"token_type": TokenTypes.EQ},
-    f'{TokenTypes.NOT}_{TokenTypes.ASSIGN}': {"token_type": TokenTypes.NEQ},
-    f'{TokenTypes.PLUS}_{TokenTypes.PLUS}': {"token_type": TokenTypes.INC},
-    f'{TokenTypes.MIN}_{TokenTypes.MIN}': {"token_type": TokenTypes.DEC},
-    f'{TokenTypes.ELSE}_{TokenTypes.IF}': {"token_type": TokenTypes.ELIF},
-    f'{TokenTypes.IDENT}_{TokenTypes.LPAREN}': {"token_type": TokenTypes.FN},
-    f'{TokenTypes.QUOTE}_{TokenTypes.IDENT}': {"token_type": TokenTypes.IDENT},
-    f'{TokenTypes.DOUBLE_QUOTE}_{TokenTypes.IDENT}': {"token_type": TokenTypes.IDENT},
-    f'{TokenTypes.IDENT}_{TokenTypes.QUOTE}': {"token_type": TokenTypes.IDENT},
-    f'{TokenTypes.IDENT}_{TokenTypes.DOUBLE_QUOTE}': {"token_type": TokenTypes.IDENT},
+    f"{TokenTypes.LT}_{TokenTypes.ASSIGN}": {"token_type": TokenTypes.LTE},
+    f"{TokenTypes.GT}_{TokenTypes.ASSIGN}": {"token_type": TokenTypes.GTE},
+    f"{TokenTypes.ASSIGN}_{TokenTypes.ASSIGN}": {"token_type": TokenTypes.EQ},
+    f"{TokenTypes.NOT}_{TokenTypes.ASSIGN}": {"token_type": TokenTypes.NEQ},
+    f"{TokenTypes.PLUS}_{TokenTypes.PLUS}": {"token_type": TokenTypes.INC},
+    f"{TokenTypes.MIN}_{TokenTypes.MIN}": {"token_type": TokenTypes.DEC},
+    f"{TokenTypes.ELSE}_{TokenTypes.IF}": {"token_type": TokenTypes.ELIF},
+    f"{TokenTypes.IDENT}_{TokenTypes.LPAREN}": {"token_type": TokenTypes.FN},
+    f"{TokenTypes.QUOTE}_{TokenTypes.IDENT}": {"token_type": TokenTypes.IDENT},
+    f"{TokenTypes.DOUBLE_QUOTE}_{TokenTypes.IDENT}": {"token_type": TokenTypes.IDENT},
+    f"{TokenTypes.IDENT}_{TokenTypes.QUOTE}": {"token_type": TokenTypes.IDENT},
+    f"{TokenTypes.IDENT}_{TokenTypes.DOUBLE_QUOTE}": {"token_type": TokenTypes.IDENT},
 }

@@ -1,13 +1,23 @@
-from math import exp
 from lexer.token_lists import TokenTypes
-from parser.ast_entities import BlockStmt, ConditionStmt, FuncStatement, IfStmt, InitStmt, LoopStmt, ProgrammeNode, ReturnStatement
+from parser.ast_entities import (
+    BlockStmt,
+    ConditionStmt,
+    FuncStatement,
+    IfStmt,
+    InitStmt,
+    LoopStmt,
+    ProgrammeNode,
+    ReturnStatement,
+)
 from parser.expression_parser import LOWEST, PrattParser
 from utils.main import getTokenType
+
 
 class ExpectedError(Exception):
     def __init__(self, token, given) -> None:
         self.message = f"Expected {token}, but given {given}"
         super().__init__(self.message)
+
 
 class Parser:
     def __init__(self) -> None:
@@ -20,26 +30,26 @@ class Parser:
 
     def pick(self):
         return self.tokens[self.cursor]
-    
+
     def peekN(self, n):
         # returns nth lookahead token, if it exists
         if self.cursor + n < len(self.tokens):
-            return self.tokens[self.cursor+n]
+            return self.tokens[self.cursor + n]
 
     def next(self, n=1):
         self.cursor += n
         if not self.tokens_left():
             raise Exception("Tried to access token outside of the range")
-    
+
     def expect(self, tok):
         if getTokenType(self.pick()) != tok:
             raise ExpectedError(tok, getTokenType(self.pick()))
 
     def indicateBody(self):
-        #inserts special PARSE_BREAK before the end of a current body
+        # inserts special PARSE_BREAK before the end of a current body
         bracesCnt = 0
         i = 0
-        #TODO: quite dangerous statement :). Probably need to be changed 
+        # TODO: quite dangerous statement :). Probably need to be changed
         while True:
             if getTokenType(self.peekN(i)) == TokenTypes.LBRACE:
                 bracesCnt += 1
@@ -48,8 +58,8 @@ class Parser:
             if bracesCnt < 0:
                 break
             i += 1
-        self.tokens.insert(self.cursor+i, {"token_type": TokenTypes.PARSE_BREAK})
-    
+        self.tokens.insert(self.cursor + i, {"token_type": TokenTypes.PARSE_BREAK})
+
     def parseBody(self):
         bodyStmts = []
         while getTokenType(self.pick()) != TokenTypes.PARSE_BREAK:
@@ -57,12 +67,12 @@ class Parser:
 
             if stmt != None:
                 bodyStmts.append(stmt)
-        self.next() # skip PARSE_BREAK
-        self.next() # skip closing RBRACE
+        self.next()  # skip PARSE_BREAK
+        self.next()  # skip closing RBRACE
         return BlockStmt(bodyStmts)
 
     def parseInitLeftSide(self):
-        #TODO: add support for pointers && probably different flow for func args
+        # TODO: add support for pointers && probably different flow for func args
         initTypeTok = self.pick()
         self.next()
         self.expect(TokenTypes.IDENT)
@@ -75,7 +85,10 @@ class Parser:
 
     def parseExpr(self):
         expr = []
-        while getTokenType(self.pick()) not in [TokenTypes.SEMICOL, TokenTypes.PARSE_BREAK]:
+        while getTokenType(self.pick()) not in [
+            TokenTypes.SEMICOL,
+            TokenTypes.PARSE_BREAK,
+        ]:
             expr.append(self.pick())
             self.next()
         self.next()
@@ -142,12 +155,12 @@ class Parser:
         self.next()
         expr = []
         i = 0
-        #TODO: quite dangerous statement :). Probably need to be changed 
+        # TODO: quite dangerous statement :). Probably need to be changed
         while True:
             if getTokenType(self.peekN(i)) == TokenTypes.RPAREN:
                 break
             i += 1
-        self.tokens.insert(self.cursor+i, {"token_type": TokenTypes.PARSE_BREAK})
+        self.tokens.insert(self.cursor + i, {"token_type": TokenTypes.PARSE_BREAK})
         while getTokenType(self.pick()) != TokenTypes.RPAREN:
             if getTokenType(self.pick()) == TokenTypes.SEMICOL:
                 self.next()
@@ -161,8 +174,7 @@ class Parser:
         loopNode.condition = expr
         loopNode.body = bodyStmts
         return loopNode
-            
-    
+
     def parseConditionStmt(self):
         self.next()
         self.expect(TokenTypes.LPAREN)
@@ -209,7 +221,6 @@ class Parser:
         expr = self.parseExpr()
         return ReturnStatement(expr)
 
-
     def parseStmt(self):
         match getTokenType(self.pick()):
             case TokenTypes.TYPE:
@@ -239,5 +250,5 @@ class Parser:
             stmt = self.parseStmt()
             if stmt != None:
                 head_node.stmts.append(stmt)
-        
+
         return head_node

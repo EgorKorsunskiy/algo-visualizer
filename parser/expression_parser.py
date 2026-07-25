@@ -1,11 +1,17 @@
-from typing import List, Tuple
-from webbrowser import get
 from lexer.token_lists import TokenTypes
-from parser.ast_entities import AssignExprNode, AtomicExprNode, CallExprNode, InfixExprNode, PrefixExprNode, SuffixExprNode
+from parser.ast_entities import (
+    AssignExprNode,
+    AtomicExprNode,
+    CallExprNode,
+    InfixExprNode,
+    PrefixExprNode,
+    SuffixExprNode,
+)
 from utils.main import createToken, getTokenType
 
 PREFIX = 100
 LOWEST = 0
+
 
 # Parser for expressions
 class PrattParser:
@@ -66,7 +72,7 @@ class PrattParser:
     def parseGroupedExpr(self):
         self.next()
 
-        expr = self.parseExpr(LOWEST) # "sucks" everything inside braces
+        expr = self.parseExpr(LOWEST)  # "sucks" everything inside braces
         # There is no infix function for RBRACE so parseExpr will terminate after its appearance
         # Since the whole expr is now a  prefix, next() will be called so RBRACE token will be skipped
 
@@ -79,10 +85,10 @@ class PrattParser:
     def parsePrefixExpr(self):
         currToken = self.pick()
         self.next()
-        
+
         right = self.parseExpr(PREFIX)
         return PrefixExprNode(currToken, right)
-    
+
     def parseSuffixExpr(self, left):
         currToken = self.pick()
         self.next()
@@ -98,12 +104,11 @@ class PrattParser:
 
         return InfixExprNode(token, left, right)
 
-
-    def setExpr(self, expr: List):
+    def setExpr(self, expr: list):
         self.size = len(expr)
         self.cursor = 0
         self.expr = expr
-    
+
     def next(self):
         self.cursor += 1
 
@@ -123,15 +128,14 @@ class PrattParser:
         self.next()
         currToken = getTokenType(self.pick())
         if currToken not in self.infixParseFnc:
-                return left
-        while self.getTokensLeft() and  self.getInfixBindingPower(currToken) > min_bp:
+            return left
+        while self.getTokensLeft() and self.getInfixBindingPower(currToken) > min_bp:
             infixFunc = self.infixParseFnc[currToken]
             left = infixFunc(left)
             currToken = getTokenType(self.pick())
         return left
-        
 
-    def getInfixBindingPower(self, op: TokenTypes) -> Tuple[int,int]:
+    def getInfixBindingPower(self, op: TokenTypes) -> tuple[int, int]:
         match op:
             case TokenTypes.ASSIGN:
                 return 1
@@ -139,7 +143,13 @@ class PrattParser:
                 return 3
             case TokenTypes.MUL | TokenTypes.DIVIDE | TokenTypes.MOD:
                 return 4
-            case TokenTypes.LTE | TokenTypes.GTE | TokenTypes.EQ | TokenTypes.LT | TokenTypes.GT:
+            case (
+                TokenTypes.LTE
+                | TokenTypes.GTE
+                | TokenTypes.EQ
+                | TokenTypes.LT
+                | TokenTypes.GT
+            ):
                 return 5
             case TokenTypes.INC | TokenTypes.DEC:
                 return 6

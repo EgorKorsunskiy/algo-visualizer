@@ -1,43 +1,46 @@
 # now support only cpp code
-from typing import List
 from lexer.token_lists import TokenTypes, merge_rules, string_to_token_map
 
 
 class Lexer:
     def __init__(self) -> None:
-        #TODO: probably allow for selecting languages different from cpp
+        # TODO: probably allow for selecting languages different from cpp
         pass
+
     def augmentToken(self, targetToken, tokenA, tokenB):
         if targetToken["token_type"] == TokenTypes.FN:
             print(tokenA, tokenB)
             targetToken["value"] = tokenA["value"]
         return targetToken
-    def merge_tokens(self, tokens: List) -> List:
+
+    def merge_tokens(self, tokens: list) -> list:
         new_tokens = []
         last_insert_index = -1
-        for i in range(1,len(tokens)):
-            if i-1<=last_insert_index:
+        for i in range(1, len(tokens)):
+            if i - 1 <= last_insert_index:
                 continue
-            token_couple = f'{tokens[i-1]["token_type"]}_{tokens[i]["token_type"]}'
+            token_couple = f"{tokens[i - 1]['token_type']}_{tokens[i]['token_type']}"
             token_to_insert = None
             if token_couple in merge_rules:
                 token_to_insert = merge_rules[token_couple].copy()
-                token_to_insert = self.augmentToken(token_to_insert, tokens[i-1], tokens[i])
+                token_to_insert = self.augmentToken(
+                    token_to_insert, tokens[i - 1], tokens[i]
+                )
                 last_insert_index = i
             else:
-                token_to_insert = tokens[i-1]
+                token_to_insert = tokens[i - 1]
             new_tokens.append(token_to_insert)
-        if(last_insert_index != len(tokens)-1):
+        if last_insert_index != len(tokens) - 1:
             new_tokens.append(tokens[-1])
-        
+
         return new_tokens
-    
+
     def tokens_merge_helper(self, tokens, iter=2):
         for _ in range(iter):
             tokens = self.merge_tokens(tokens)
         return tokens
 
-    def parse(self, input_string: str) -> List:
+    def parse(self, input_string: str) -> list:
         tokens = []
         current_word = ""
 
@@ -73,13 +76,16 @@ class Lexer:
     # ch helpers
     def is_valid_ch(self, char: str) -> bool:
         return self.is_letter(char) or self.is_digit(char)
+
     def is_letter(self, char: str) -> bool:
         return char.isalpha()
+
     def is_digit(self, char: str) -> bool:
         return char.isdigit()
+
     def is_whitespace(self, char: str) -> bool:
         return char.isspace()
-    
+
     # ident vs literal helpers
     def is_valid_number(self, word: str) -> bool:
         return word.isdigit()

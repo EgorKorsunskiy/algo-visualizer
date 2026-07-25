@@ -6,6 +6,7 @@ def compareLists(listA, listB):
             return False
     return True
 
+
 def inOrderTraverseAST(node, nodes=None):
     if nodes is None:
         nodes = []
@@ -15,6 +16,7 @@ def inOrderTraverseAST(node, nodes=None):
     if getattr(node, "right", None) is not None:
         inOrderTraverseAST(node.right, nodes)
     return nodes
+
 
 def compareTokens(tokenA, tokenB):
     return compareLists(list(tokenA.values()), list(tokenB.values()))

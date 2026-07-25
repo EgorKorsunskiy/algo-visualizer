@@ -4,21 +4,24 @@ from lexer.token_lists import TokenTypes
 from tests.test_utils import compareLists
 from utils.main import getTokenType
 
+
 @pytest.fixture
 def lexer():
-        return Lexer()
+    return Lexer()
+
 
 class TestLexer:
-
     def _run_and_compare_lexer(self, lexer, input, expected_tokens):
         tokens = lexer.parse(input)
         tokens = lexer.tokens_merge_helper(tokens)
         print("Actual result: ", list(map(lambda token: getTokenType(token), tokens)))
         print("Expected result: ", expected_tokens)
-        assert compareLists(list(map(lambda token: getTokenType(token), tokens)), expected_tokens)
+        assert compareLists(
+            list(map(lambda token: getTokenType(token), tokens)), expected_tokens
+        )
 
     def testTokens(self, lexer):
-        input = '''<;>,!<=;!=;='"true false'''
+        input = """<;>,!<=;!=;='"true false"""
         expected_tokens = [
             TokenTypes.LT,
             TokenTypes.SEMICOL,
@@ -34,7 +37,7 @@ class TestLexer:
             TokenTypes.DOUBLE_QUOTE,
             TokenTypes.TRUE,
             TokenTypes.FALSE,
-            TokenTypes.EOF
+            TokenTypes.EOF,
         ]
         self._run_and_compare_lexer(lexer, input, expected_tokens)
 
@@ -54,7 +57,7 @@ class TestLexer:
             TokenTypes.INT,
             TokenTypes.SEMICOL,
             TokenTypes.IDENT,
-            TokenTypes.EOF
+            TokenTypes.EOF,
         ]
         self._run_and_compare_lexer(lexer, input, expected_tokens)
 
@@ -84,10 +87,10 @@ class TestLexer:
             TokenTypes.ELSE,
             TokenTypes.LBRACE,
             TokenTypes.RBRACE,
-            TokenTypes.EOF
+            TokenTypes.EOF,
         ]
         self._run_and_compare_lexer(lexer, input, expected_tokens)
-    
+
     def testLoops(self, lexer):
         input = """
             for(int i = 0;i<n;++i) {}
@@ -118,11 +121,11 @@ class TestLexer:
             TokenTypes.RPAREN,
             TokenTypes.LBRACE,
             TokenTypes.RBRACE,
-            TokenTypes.EOF
+            TokenTypes.EOF,
         ]
 
         self._run_and_compare_lexer(lexer, input, expected_tokens)
-    
+
     def testFunctionDeclarations(self, lexer):
         input = """
             void fn(int a, string b) {}
@@ -138,7 +141,7 @@ class TestLexer:
             TokenTypes.RPAREN,
             TokenTypes.LBRACE,
             TokenTypes.RBRACE,
-            TokenTypes.EOF
+            TokenTypes.EOF,
         ]
 
         self._run_and_compare_lexer(lexer, input, expected_tokens)
@@ -155,7 +158,7 @@ class TestLexer:
             TokenTypes.INT,
             TokenTypes.RPAREN,
             TokenTypes.SEMICOL,
-            TokenTypes.EOF
+            TokenTypes.EOF,
         ]
 
         self._run_and_compare_lexer(lexer, input, expected_tokens)
