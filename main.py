@@ -1,11 +1,19 @@
 from lexer.main import Lexer
 from parser.main import Parser
+from tests.test_utils import inOrderTraverseAST
 from walker.environment import Environment
 from walker.main import Walker
 
 FRAGMENT = """
-    int a = 2 * 2;
-    a*10;
+    int add(int a, int b) {
+        return a + b;
+    }
+
+    int square(int x) {
+        return x * x;
+    }
+
+    square(add(2, 3));
 """
 
 def main():

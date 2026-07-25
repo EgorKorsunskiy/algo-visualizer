@@ -24,6 +24,13 @@ class SuffixExprNode(ExprNode):
     def __init__(self, tok=None, left=None) -> None:
         super().__init__(tok)
         self.left = left
+
+class AssignExprNode(ExprNode):
+    def __init__(self, tok, left, right) -> None:
+        super().__init__(tok)
+        self.left = left
+        self.right = right
+
 class CallExprNode(ExprNode):
     def __init__(self, tok=None, params=None) -> None:
         super().__init__(tok)
@@ -77,6 +84,14 @@ class IfStmt(ConditionStmt):
         base = super().__repr__()
         return f"{base}\n"
 
+class ReturnStatement:
+    def __init__(self, right) -> None:
+        self.right = right
+    def __eq__(self, other: object) -> bool:
+        if not hasattr(other, 'right'):
+            return False
+        return self.right == other.right
+
 class FuncStatement:
     def __init__(self) -> None:
         self.type = None
@@ -84,4 +99,4 @@ class FuncStatement:
         self.args = []
         self.body = None
     def __repr__(self) -> str:
-        return f"{self.type}\n {self.name}\n {" ".join(str(arg) for arg in self.args)}"
+        return f"{self.name}\n"

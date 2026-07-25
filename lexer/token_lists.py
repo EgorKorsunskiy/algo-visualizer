@@ -7,6 +7,7 @@ class TokenTypes(Enum):
     DIVIDE = auto()
     MIN = auto()
     PLUS = auto()
+    MOD = auto()
     ASSIGN = auto()
     EQ = auto()
     NEQ = auto()
@@ -51,12 +52,12 @@ string_to_token_map = {
     "while": {"token_type": TokenTypes.WHILE},
     "if": {"token_type": TokenTypes.IF},
     "else": {"token_type": TokenTypes.ELSE},
-    "int": {"token_type": TokenTypes.TYPE},
-    "float": {"token_type": TokenTypes.TYPE},
-    "bool": {"token_type": TokenTypes.TYPE},
-    "string": {"token_type": TokenTypes.TYPE},
-    "char": {"token_type": TokenTypes.TYPE},
-    "void": {"token_type": TokenTypes.TYPE},
+    "int": {"token_type": TokenTypes.TYPE, "value": 'int'},
+    "float": {"token_type": TokenTypes.TYPE, "value": 'float'},
+    "bool": {"token_type": TokenTypes.TYPE, "value": 'bool'},
+    "string": {"token_type": TokenTypes.TYPE, "value": 'string'},
+    "char": {"token_type": TokenTypes.TYPE, "value": 'char'},
+    "void": {"token_type": TokenTypes.TYPE, "value": 'void'},
     "return": {"token_type": TokenTypes.RETURN},
     "break": {"token_type": TokenTypes.BREAK},
     "continue": {"token_type": TokenTypes.CONTINUE},
@@ -70,6 +71,7 @@ string_to_token_map = {
     "-": {"token_type": TokenTypes.MIN},
     "*": {"token_type": TokenTypes.MUL},
     "/": {"token_type": TokenTypes.DIVIDE},
+    "%": {"token_type": TokenTypes.MOD},
     ";": {"token_type": TokenTypes.SEMICOL},
     ",": {"token_type": TokenTypes.COMMA},
     "{": {"token_type": TokenTypes.LBRACE},
@@ -89,7 +91,6 @@ merge_rules = {
     f'{TokenTypes.PLUS}_{TokenTypes.PLUS}': {"token_type": TokenTypes.INC},
     f'{TokenTypes.MIN}_{TokenTypes.MIN}': {"token_type": TokenTypes.DEC},
     f'{TokenTypes.ELSE}_{TokenTypes.IF}': {"token_type": TokenTypes.ELIF},
-    f'{TokenTypes.IDENT}_{TokenTypes.LPAREN}': {"token_type": TokenTypes.FN},
     f'{TokenTypes.IDENT}_{TokenTypes.LPAREN}': {"token_type": TokenTypes.FN},
     f'{TokenTypes.QUOTE}_{TokenTypes.IDENT}': {"token_type": TokenTypes.IDENT},
     f'{TokenTypes.DOUBLE_QUOTE}_{TokenTypes.IDENT}': {"token_type": TokenTypes.IDENT},

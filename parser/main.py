@@ -1,5 +1,6 @@
+from math import exp
 from lexer.token_lists import TokenTypes
-from parser.ast_entities import BlockStmt, ConditionStmt, FuncStatement, IfStmt, InitStmt, LoopStmt, ProgrammeNode
+from parser.ast_entities import BlockStmt, ConditionStmt, FuncStatement, IfStmt, InitStmt, LoopStmt, ProgrammeNode, ReturnStatement
 from parser.expression_parser import LOWEST, PrattParser
 from utils.main import getTokenType
 
@@ -203,6 +204,11 @@ class Parser:
         ifStmt.rejectBody = rejectBody
         return ifStmt
 
+    def parseReturnStmt(self):
+        self.next()
+        expr = self.parseExpr()
+        return ReturnStatement(expr)
+
 
     def parseStmt(self):
         match getTokenType(self.pick()):
@@ -217,6 +223,8 @@ class Parser:
                 return self.parseWhileStmt()
             case TokenTypes.IF:
                 return self.parseIfStmt()
+            case TokenTypes.RETURN:
+                return self.parseReturnStmt()
             case TokenTypes.PARSE_BREAK:
                 return
             case _:
