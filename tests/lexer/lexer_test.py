@@ -21,7 +21,7 @@ class TestLexer:
         )
 
     def testTokens(self, lexer):
-        input = """<;>,!<=;!=;='"true false"""
+        input = """<;>,!<=;!=;='"true false]["""
         expected_tokens = [
             TokenTypes.LT,
             TokenTypes.SEMICOL,
@@ -37,6 +37,8 @@ class TestLexer:
             TokenTypes.DOUBLE_QUOTE,
             TokenTypes.TRUE,
             TokenTypes.FALSE,
+            TokenTypes.RBRACKET,
+            TokenTypes.LBRACKET,
             TokenTypes.EOF,
         ]
         self._run_and_compare_lexer(lexer, input, expected_tokens)

@@ -3,8 +3,10 @@ import pytest
 from lexer.main import Lexer
 from lexer.token_lists import TokenTypes
 from parser.ast_entities import (
+    AssignExprNode,
     AtomicExprNode,
     CallExprNode,
+    IndexExprNode,
     InfixExprNode,
     InitStmt,
     SuffixExprNode,
@@ -61,6 +63,55 @@ class TestParser:
             InfixExprNode(createToken(TokenTypes.INT, 2)),
             InfixExprNode(createToken(TokenTypes.DIVIDE)),
             InfixExprNode(createToken(TokenTypes.INT, 7)),
+        ]
+
+        self._run_and_compare_expr(lexer, parser, input, expected)
+
+    def testAssignExpressions(self, lexer, parser):
+        input = """b = 123;"""
+        expected = [
+            AtomicExprNode(createToken(TokenTypes.IDENT, "b")),
+            AssignExprNode(createToken(TokenTypes.ASSIGN)),
+            AtomicExprNode(createToken(TokenTypes.INT, 123)),
+        ]
+
+        self._run_and_compare_expr(lexer, parser, input, expected)
+
+    def testArrayExpressions(self, lexer, parser):
+        input = """[5+3, 10, "text"];"""
+        ast = self._get_ast(lexer, parser, input)
+        assert len(ast.stmts[0].values) == 3
+        expected = [
+            AtomicExprNode(createToken(TokenTypes.INT, 5)),
+            InfixExprNode(createToken(TokenTypes.PLUS)),
+            AtomicExprNode(createToken(TokenTypes.INT, 3)),
+        ]
+
+        self._run_and_compare_expr(
+            lexer, parser, input, expected, ast.stmts[0].values[0]
+        )
+        expected = [
+            AtomicExprNode(createToken(TokenTypes.INT, 10)),
+        ]
+
+        self._run_and_compare_expr(
+            lexer, parser, input, expected, ast.stmts[0].values[1]
+        )
+        expected = [
+            AtomicExprNode(createToken(TokenTypes.IDENT, "text")),
+        ]
+        self._run_and_compare_expr(
+            lexer, parser, input, expected, ast.stmts[0].values[2]
+        )
+    
+    def testIndexExpressions(self, lexer, parser):
+        input = """someArray[1+1];"""
+        expected = [
+            AtomicExprNode(createToken(TokenTypes.IDENT, "someArray")),
+            IndexExprNode(createToken(TokenTypes.LBRACKET)),
+            AtomicExprNode(createToken(TokenTypes.INT, 1)),
+            InfixExprNode(createToken(TokenTypes.PLUS)),
+            AtomicExprNode(createToken(TokenTypes.INT, 1))
         ]
 
         self._run_and_compare_expr(lexer, parser, input, expected)

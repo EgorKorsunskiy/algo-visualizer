@@ -24,6 +24,8 @@ class TokenTypes(Enum):
     LBRACE = auto()
     RPAREN = auto()
     LPAREN = auto()
+    LBRACKET = auto()
+    RBRACKET = auto()
     NOT = auto()
     QUOTE = auto()
     DOUBLE_QUOTE = auto()
@@ -79,6 +81,8 @@ string_to_token_map = {
     "}": {"token_type": TokenTypes.RBRACE},
     "(": {"token_type": TokenTypes.LPAREN},
     ")": {"token_type": TokenTypes.RPAREN},
+    "[": {"token_type": TokenTypes.LBRACKET},
+    "]": {"token_type": TokenTypes.RBRACKET},
     "!": {"token_type": TokenTypes.NOT},
     "'": {"token_type": TokenTypes.QUOTE},
     '"': {"token_type": TokenTypes.DOUBLE_QUOTE},

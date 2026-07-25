@@ -9,8 +9,10 @@ class Lexer:
 
     def augmentToken(self, targetToken, tokenA, tokenB):
         if targetToken["token_type"] == TokenTypes.FN:
-            print(tokenA, tokenB)
             targetToken["value"] = tokenA["value"]
+        elif targetToken["token_type"] == TokenTypes.IDENT:
+            value = tokenA["value"] if "value" in tokenA else tokenB["value"]
+            targetToken["value"] = value
         return targetToken
 
     def merge_tokens(self, tokens: list) -> list:

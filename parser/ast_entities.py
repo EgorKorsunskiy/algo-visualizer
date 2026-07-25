@@ -33,9 +33,21 @@ class SuffixExprNode(ExprNode):
         super().__init__(tok)
         self.left = left
 
+class ArrayExprNode(ExprNode):
+    def __init__(self, tok=None, values=None) -> None:
+        super().__init__(tok)
+        if values == None:
+            values = []
+        self.values = values
+
+class IndexExprNode(ExprNode):
+    def __init__(self, tok=None, left=None, right=None) -> None:
+        super().__init__(tok)
+        self.left = left
+        self.right = right
 
 class AssignExprNode(ExprNode):
-    def __init__(self, tok, left, right) -> None:
+    def __init__(self, tok, left=None, right=None) -> None:
         super().__init__(tok)
         self.left = left
         self.right = right

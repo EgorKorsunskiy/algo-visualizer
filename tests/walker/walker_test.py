@@ -2,7 +2,6 @@ import pytest
 
 from lexer.main import Lexer
 from parser.main import Parser
-from tests.test_utils import inOrderTraverseAST
 from walker.environment import Environment
 from walker.main import Walker
 
@@ -132,3 +131,12 @@ class TestWalker:
             assert (
                 self._eval(walker, self._getAst(lexer, parser, inputs[i])) == outputs[i]
             )
+
+    def testArrayExpressions(self, lexer, parser, walker):
+        inputs = [
+            """
+                a = [1,2,3];
+                a[0];
+            """
+        ]
+        assert self._eval(walker, self._getAst(lexer, parser, inputs[0])) == 1

@@ -1,8 +1,10 @@
 from lexer.token_lists import TokenTypes
 from parser.ast_entities import (
+    ArrayExprNode,
     AssignExprNode,
     AtomicExprNode,
     CallExprNode,
+    IndexExprNode,
     InfixExprNode,
     PrefixExprNode,
     SuffixExprNode,
@@ -23,6 +25,7 @@ class PrattParser:
         self.prefixParseFnc[TokenTypes.DEC] = self.parsePrefixExpr
         self.prefixParseFnc[TokenTypes.MIN] = self.parsePrefixExpr
         self.prefixParseFnc[TokenTypes.NOT] = self.parsePrefixExpr
+        self.prefixParseFnc[TokenTypes.LBRACKET] = self.parseArrayExpr
         self.prefixParseFnc[TokenTypes.IDENT] = self.parseAtomicExpr
         self.prefixParseFnc[TokenTypes.INT] = self.parseAtomicExpr
         self.prefixParseFnc[TokenTypes.TRUE] = self.parseAtomicExpr
@@ -40,6 +43,7 @@ class PrattParser:
         self.infixParseFnc[TokenTypes.GT] = self.parseInfixExpr
         self.infixParseFnc[TokenTypes.LT] = self.parseInfixExpr
         self.infixParseFnc[TokenTypes.EQ] = self.parseInfixExpr
+        self.infixParseFnc[TokenTypes.LBRACKET] = self.parseIndexExpr
 
         self.infixParseFnc[TokenTypes.ASSIGN] = self.parseAssignExpr
 
@@ -50,6 +54,31 @@ class PrattParser:
         self.cursor = None
         self.expr = None
 
+    def parseCommaSeparatedList(self, stopToken):
+        values = []
+        while getTokenType(self.pick()) != stopToken:
+            if getTokenType(self.pick()) == TokenTypes.COMMA:
+                self.next()
+            expr = self.parseExpr(LOWEST)
+            values.append(expr)
+        return values
+
+    def parseIndexExpr(self, left):
+        currToken = self.pick()
+        self.next()
+
+        right = self.parseExpr(LOWEST)
+        # skip RBRACKET
+        self.next()
+        return IndexExprNode(currToken, left, right)
+
+    def parseArrayExpr(self):
+        currToken = self.pick()
+        self.next()
+
+        values = self.parseCommaSeparatedList(TokenTypes.RBRACKET)
+        return ArrayExprNode(currToken, values)
+
     def parseAssignExpr(self, left):
         currToken = self.pick()
         self.next()
@@ -59,13 +88,8 @@ class PrattParser:
 
     def parseCallExpr(self):
         currToken = self.pick()
-        params = []
         self.next()
-        while getTokenType(self.pick()) != TokenTypes.RPAREN:
-            if getTokenType(self.pick()) == TokenTypes.COMMA:
-                self.next()
-            expr = self.parseExpr(LOWEST)
-            params.append(expr)
+        params = self.parseCommaSeparatedList(TokenTypes.RPAREN)
 
         return CallExprNode(currToken, params)
 
@@ -151,7 +175,7 @@ class PrattParser:
                 | TokenTypes.GT
             ):
                 return 5
-            case TokenTypes.INC | TokenTypes.DEC:
+            case TokenTypes.INC | TokenTypes.DEC | TokenTypes.LBRACKET:
                 return 6
             case _:
                 return LOWEST
