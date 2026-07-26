@@ -5,15 +5,11 @@ from walker.environment import Environment
 from walker.main import Walker
 
 FRAGMENT = """
-    int add(int a, int b) {
-        return a + b;
-    }
-
-    int square(int x) {
-        return x * x;
-    }
-
-    square(add(2, 3));
+        int a = 1;
+        while(a<10) {
+            a++;
+        }
+        a;
 """
 
 

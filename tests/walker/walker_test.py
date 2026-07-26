@@ -140,3 +140,28 @@ class TestWalker:
             """
         ]
         assert self._eval(walker, self._getAst(lexer, parser, inputs[0])) == 1
+    
+    def testWhileStatements(self, lexer, parser, walker):
+        inputs = [
+            """
+                int a = 1;
+                while(a<10) {
+                    a++;
+                }
+                a;
+            """
+        ]
+        assert self._eval(walker, self._getAst(lexer, parser, inputs[0])) == 10
+
+    def testForStatements(self, lexer, parser, walker):
+        inputs = [
+            """
+                int n = 20;
+                int counter = 0;
+                for(int i = 0;i<n;i++) {
+                    ++counter;
+                }
+                counter;
+            """
+        ]
+        assert self._eval(walker, self._getAst(lexer, parser, inputs[0])) == 20

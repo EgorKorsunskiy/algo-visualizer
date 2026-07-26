@@ -9,6 +9,7 @@ from parser.ast_entities import (
     IndexExprNode,
     InfixExprNode,
     InitStmt,
+    LoopStmt,
     PrefixExprNode,
     ProgrammeNode,
     ReturnStatement,
@@ -43,28 +44,49 @@ class Walker:
                 return self.eval(node.left, env) // self.eval(node.right, env)
             case TokenTypes.MOD:
                 return self.eval(node.left, env) % self.eval(node.right, env)
+            # bool op
+            case TokenTypes.LT:
+                return self.eval(node.left, env) < self.eval(node.right, env)
 
     def evalPrefixExpr(self, node, env: Environment):
+        def update_value(node, result):
+            if not isinstance(node.right, AtomicExprNode):
+                raise Exception(f"Invalid left side of {getTokenType(node.tok)}")
+            env.set(node.right.tok["value"], result, True)
+
         match getTokenType(node.tok):
             case TokenTypes.MIN:
                 return -self.eval(node.right, env)
             case TokenTypes.INC:
-                return self.eval(node.right, env) + 1
+                result = self.eval(node.right, env) + 1
+                update_value(node, result)
+                return result
             case TokenTypes.DEC:
-                return self.eval(node.right, env) - 1
+                result = self.eval(node.right, env) - 1
+                update_value(node, result)
+                return result
 
     def evalSuffixExpr(self, node, env: Environment):
+        def update_value(node, result):
+            if not isinstance(node.left, AtomicExprNode):
+                raise Exception(f"Invalid left side of {getTokenType(node.tok)}")
+            env.set(node.left.tok["value"], result, True)
+
         match getTokenType(node.tok):
             case TokenTypes.INC:
-                return self.eval(node.left, env) + 1
+                result = self.eval(node.left, env) + 1
+                update_value(node, result)
+                return result
             case TokenTypes.DEC:
-                return self.eval(node.left, env) - 1
+                result = self.eval(node.left, env) - 1
+                update_value(node, result)
+                return result
 
     def evalAssignExpr(self, node, env: Environment):
         evaluated_value = self.eval(node.right, env)
         if not isinstance(node.left, AtomicExprNode):
             raise Exception("Invalid left side of =")
-        env.set(node.left.tok["value"], evaluated_value)
+        env.set(node.left.tok["value"], evaluated_value, True)
         self.log.set(VAR_TYPE.PRIMITIVE, node.left.tok["value"])
 
     def evalArrayExpr(self, node, _: Environment):
@@ -102,7 +124,7 @@ class Walker:
             fn_env.set(fn.args[i].name["value"], evaluated_value)
         return self.eval(fn.body, fn_env)
 
-    def parseReturnStmt(self, node, env: Environment):
+    def evalReturnStmt(self, node, env: Environment):
         return self.eval(node.right, env)
 
     def evalBlockStmt(self, node, env):
@@ -113,6 +135,36 @@ class Walker:
                 return result
             if result != None:
                 output = result
+        return output
+
+    def evalLoopStmt(self, node, env: Environment):
+        if isinstance(node.condition, list):
+            return self.evalForStmt(node, env)
+        return self.evalWhileStmt(node, env)
+
+    def evalWhileStmt(self, node, env: Environment):
+        condition = node.condition
+        evaluated_condition = self.eval(condition, env)
+        output = None
+        self.log.while_record()
+        while evaluated_condition:
+            output = self.eval(node.body, env)
+            evaluated_condition = self.eval(condition, env)
+        return output
+
+    def evalForStmt(self, node, env: Environment):
+        initStmt = node.condition[0]
+        condition = node.condition[1]
+        stepExpr = node.condition[2]
+
+        for_env = Environment(outer=env)
+        self.eval(initStmt, for_env)
+        evaluated_condition = self.eval(condition, for_env)
+        output = None
+        while evaluated_condition:
+            output = self.eval(node.body, for_env)
+            self.eval(stepExpr, for_env)
+            evaluated_condition = self.eval(condition, for_env)
         return output
 
     def eval(self, node, env: Environment):
@@ -138,6 +190,8 @@ class Walker:
             case CallExprNode():
                 return self.evalFnCallExpr(node, env)
             case ReturnStatement():
-                return self.parseReturnStmt(node, env)
+                return self.evalReturnStmt(node, env)
+            case LoopStmt():
+                return self.evalLoopStmt(node, env)
             case BlockStmt() | ProgrammeNode():
                 return self.evalBlockStmt(node, env)
