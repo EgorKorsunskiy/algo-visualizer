@@ -33,6 +33,7 @@ class SuffixExprNode(ExprNode):
         super().__init__(tok)
         self.left = left
 
+
 class ArrayExprNode(ExprNode):
     def __init__(self, tok=None, values=None) -> None:
         super().__init__(tok)
@@ -40,11 +41,13 @@ class ArrayExprNode(ExprNode):
             values = []
         self.values = values
 
+
 class IndexExprNode(ExprNode):
     def __init__(self, tok=None, left=None, right=None) -> None:
         super().__init__(tok)
         self.left = left
         self.right = right
+
 
 class AssignExprNode(ExprNode):
     def __init__(self, tok, left=None, right=None) -> None:
@@ -77,16 +80,22 @@ class ProgrammeNode(BlockStmt):
 
 
 class InitStmt:
-    def __init__(self, type=None, name=None, value=None) -> None:
+    def __init__(self, type=None, name=None, value=None, length=None) -> None:
         self.type = type
         self.name = name
         self.value = value
+        self.isArray = bool(length)
+        self.length = length
 
     def __repr__(self) -> str:
         return f"type: {self.type} name: {self.name} value: {self.value}"
 
     def __eq__(self, other: object) -> bool:
-        if not hasattr(other, "type") or not hasattr(other, "name"):
+        if (
+            not hasattr(other, "type")
+            or not hasattr(other, "name")
+            or not hasattr(other, "length")
+        ):
             return False
         return self.type == other.type and self.name == other.name
 

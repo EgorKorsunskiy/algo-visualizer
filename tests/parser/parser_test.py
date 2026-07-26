@@ -3,6 +3,7 @@ import pytest
 from lexer.main import Lexer
 from lexer.token_lists import TokenTypes
 from parser.ast_entities import (
+    ArrayExprNode,
     AssignExprNode,
     AtomicExprNode,
     CallExprNode,
@@ -78,7 +79,7 @@ class TestParser:
         self._run_and_compare_expr(lexer, parser, input, expected)
 
     def testArrayExpressions(self, lexer, parser):
-        input = """[5+3, 10, "text"];"""
+        input = """{5+3, 10, "text"};"""
         ast = self._get_ast(lexer, parser, input)
         assert len(ast.stmts[0].values) == 3
         expected = [
@@ -103,7 +104,7 @@ class TestParser:
         self._run_and_compare_expr(
             lexer, parser, input, expected, ast.stmts[0].values[2]
         )
-    
+
     def testIndexExpressions(self, lexer, parser):
         input = """someArray[1+1];"""
         expected = [
@@ -111,7 +112,7 @@ class TestParser:
             IndexExprNode(createToken(TokenTypes.LBRACKET)),
             AtomicExprNode(createToken(TokenTypes.INT, 1)),
             InfixExprNode(createToken(TokenTypes.PLUS)),
-            AtomicExprNode(createToken(TokenTypes.INT, 1))
+            AtomicExprNode(createToken(TokenTypes.INT, 1)),
         ]
 
         self._run_and_compare_expr(lexer, parser, input, expected)
@@ -152,6 +153,28 @@ class TestParser:
             expected_second_param,
             ast.stmts[0].value.left.params[1],
         )
+
+    def testSimpleInitStatement(self, lexer, parser):
+        # TODO: ignore any valid token inside "", allow spaces inside ""
+        input = """string b = "Hithere";"""
+        ast = self._get_ast(lexer, parser, input)
+        assert ast.stmts[0] == InitStmt(
+            createToken(TokenTypes.TYPE, "string"), createToken(TokenTypes.IDENT, "b")
+        )
+        expected = [AtomicExprNode(createToken(TokenTypes.IDENT, "Hithere"))]
+        self._run_and_compare_expr(lexer, parser, input, expected, ast.stmts[0].value)
+
+    def testArrayInitStatement(self, lexer, parser):
+        # TODO: ignore any valid token inside "", allow spaces inside ""
+        input = """int b[2] = {100, 23};"""
+        ast = self._get_ast(lexer, parser, input)
+        assert ast.stmts[0] == InitStmt(
+            createToken(TokenTypes.TYPE, "int"),
+            createToken(TokenTypes.IDENT, "b"),
+            None,
+            2,
+        )
+        assert ast.stmts[0].length.tok['value'] == 2
 
     def testFnDeclarationStatement(self, lexer, parser):
         input = """

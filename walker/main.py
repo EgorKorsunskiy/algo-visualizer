@@ -62,6 +62,11 @@ class Walker:
         def update_value(node, result):
             if not isinstance(node.right, AtomicExprNode):
                 raise Exception(f"Invalid left side of {getTokenType(node.tok)}")
+            self.log.set(
+                Log.get_var_type(self.eval(node.right, env), result),
+                node.right.tok["value"],
+                result,
+            )
             env.set(node.right.tok["value"], result, True)
 
         match getTokenType(node.tok):
@@ -80,6 +85,11 @@ class Walker:
         def update_value(node, result):
             if not isinstance(node.left, AtomicExprNode):
                 raise Exception(f"Invalid left side of {getTokenType(node.tok)}")
+            self.log.set(
+                Log.get_var_type(self.eval(node.left, env), result),
+                node.left.tok["value"],
+                result,
+            )
             env.set(node.left.tok["value"], result, True)
 
         match getTokenType(node.tok):
@@ -94,10 +104,25 @@ class Walker:
 
     def evalAssignExpr(self, node, env: Environment):
         evaluated_value = self.eval(node.right, env)
-        if not isinstance(node.left, AtomicExprNode):
+        if isinstance(node.left, AtomicExprNode):
+            env.set(node.left.tok["value"], evaluated_value, True)
+            varValue = self.eval(node.left, env)
+            self.log.set(
+                Log.get_var_type(varValue, evaluated_value),
+                node.left.tok["value"],
+                evaluated_value,
+            )
+        elif isinstance(node.left, IndexExprNode):
+            index = self.eval(node.left.right, env)
+            varValue = self.eval(node.left.left, env)
+            self.log.insert(
+                Log.get_var_type(varValue, evaluated_value),
+                node.left.left.tok["value"],
+                evaluated_value,
+                index,
+            )
+        else:
             raise Exception("Invalid left side of =")
-        env.set(node.left.tok["value"], evaluated_value, True)
-        self.log.set(VAR_TYPE.PRIMITIVE, node.left.tok["value"])
 
     def evalArrayExpr(self, node, _: Environment):
         return list(map(lambda atom: atom.tok["value"], node.values))
@@ -116,12 +141,12 @@ class Walker:
     def evalInitStmt(self, node, env: Environment) -> None:
         evaluated_value = self.eval(node.value, env)
         env.set(node.name["value"], evaluated_value)
-
-        varType = VAR_TYPE.PRIMITIVE
-        match evaluated_value:
-            case list():
-                varType = VAR_TYPE.ARRAY
-        self.log.set(varType, node.name["value"])
+        varValue = env.get(node.name["value"])
+        self.log.set(
+            Log.get_var_type(varValue, evaluated_value),
+            node.name["value"],
+            evaluated_value,
+        )
 
     def evalFnLiteral(self, node, env: Environment) -> None:
         env.set(node.name["value"], node)
@@ -169,6 +194,7 @@ class Walker:
 
         for_env = Environment(outer=env)
         self.eval(initStmt, for_env)
+        self.log.for_record()
         evaluated_condition = self.eval(condition, for_env)
         output = None
         while evaluated_condition:

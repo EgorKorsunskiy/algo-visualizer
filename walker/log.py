@@ -25,20 +25,20 @@ class Log:
     def __init__(self) -> None:
         self.log = []
 
-    def _create_record(self, recordType: RECORD_TYPE, varType: VAR_TYPE, var, index=-1):
-        self.log.append((recordType, varType, var, varType, index))
+    def _create_record(self, recordType: RECORD_TYPE, varType: VAR_TYPE, var, value=None, index=-1):
+        self.log.append((recordType, varType, var, value, index))
 
-    def set(self, varType, var, index=-1):
-        self._create_record(RECORD_TYPE.SET, varType, var, index)
+    def set(self, varType, var, value, index=-1):
+        self._create_record(RECORD_TYPE.SET, varType, var, value, index)
 
-    def insert(self, varType, var, index=-1):
-        self._create_record(RECORD_TYPE.INSERT, varType, var, index)
+    def insert(self, varType, var, value, index=-1):
+        self._create_record(RECORD_TYPE.INSERT, varType, var, value, index)
 
-    def update(self, varType, var, index=-1):
-        self._create_record(RECORD_TYPE.UPDATE, varType, var, index)
+    def update(self, varType, var, value, index=-1):
+        self._create_record(RECORD_TYPE.UPDATE, varType, var, value, index)
 
-    def delete(self, varType, var, index=-1):
-        self._create_record(RECORD_TYPE.DELETE, varType, var, index)
+    def delete(self, varType, var, value, index=-1):
+        self._create_record(RECORD_TYPE.DELETE, varType, var, value, index)
 
     def while_record(self):
         self._create_record(RECORD_TYPE.WHILE, VAR_TYPE.NONE, None)
@@ -54,3 +54,16 @@ class Log:
 
     def else_record(self):
         self._create_record(RECORD_TYPE.ELSE, VAR_TYPE.NONE, None)
+
+    @staticmethod
+    def get_var_type(value, assignValue=None):
+        varType = VAR_TYPE.NONE
+        match value:
+            case list():
+                varType = VAR_TYPE.ARRAY
+            case int() | str():
+                varType = VAR_TYPE.PRIMITIVE
+            case _:
+                if assignValue:
+                    varType = Log.get_var_type(assignValue)
+        return varType

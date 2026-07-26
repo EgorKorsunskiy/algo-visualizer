@@ -25,7 +25,7 @@ class PrattParser:
         self.prefixParseFnc[TokenTypes.DEC] = self.parsePrefixExpr
         self.prefixParseFnc[TokenTypes.MIN] = self.parsePrefixExpr
         self.prefixParseFnc[TokenTypes.NOT] = self.parsePrefixExpr
-        self.prefixParseFnc[TokenTypes.LBRACKET] = self.parseArrayExpr
+        self.prefixParseFnc[TokenTypes.LBRACE] = self.parseArrayExpr
         self.prefixParseFnc[TokenTypes.IDENT] = self.parseAtomicExpr
         self.prefixParseFnc[TokenTypes.INT] = self.parseAtomicExpr
         self.prefixParseFnc[TokenTypes.TRUE] = self.parseAtomicExpr
@@ -76,7 +76,7 @@ class PrattParser:
         currToken = self.pick()
         self.next()
 
-        values = self.parseCommaSeparatedList(TokenTypes.RBRACKET)
+        values = self.parseCommaSeparatedList(TokenTypes.RBRACE)
         return ArrayExprNode(currToken, values)
 
     def parseAssignExpr(self, left):

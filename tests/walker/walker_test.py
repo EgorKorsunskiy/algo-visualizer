@@ -135,7 +135,7 @@ class TestWalker:
     def testArrayExpressions(self, lexer, parser, walker):
         inputs = [
             """
-                a = [1,2,3];
+                a = {1,2,3};
                 a[0];
             """
         ]

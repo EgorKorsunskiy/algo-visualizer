@@ -4,11 +4,7 @@ from walker.environment import Environment
 from walker.main import Walker
 
 FRAGMENT = """
-        int a = 1;
-        while(a<10) {
-            a++;
-        }
-        a;
+int b[2] = {100, 23};
 """
 
 

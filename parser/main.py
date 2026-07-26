@@ -60,6 +60,15 @@ class Parser:
             i += 1
         self.tokens.insert(self.cursor + i, {"token_type": TokenTypes.PARSE_BREAK})
 
+    def indicateChunk(self, stopToken):
+        i = 0
+        # TODO: quite dangerous statement :). Probably need to be changed
+        while True:
+            if getTokenType(self.peekN(i)) == stopToken:
+                break
+            i += 1
+        self.tokens.insert(self.cursor + i, {"token_type": TokenTypes.PARSE_BREAK})
+
     def parseBody(self):
         bodyStmts = []
         while getTokenType(self.pick()) != TokenTypes.PARSE_BREAK:
@@ -77,10 +86,17 @@ class Parser:
         self.next()
         self.expect(TokenTypes.IDENT)
         initNameTok = self.pick()
+        initLength = None
+        if getTokenType(self.peekN(1)) == TokenTypes.LBRACKET:
+            self.next()
+            self.next()
+            self.indicateChunk(TokenTypes.RBRACKET)
+            initLength = self.parseExpr()
 
         initNode = InitStmt()
         initNode.type = initTypeTok
         initNode.name = initNameTok
+        initNode.length = initLength
         return initNode
 
     def parseExpr(self):
@@ -154,13 +170,7 @@ class Parser:
         self.expect(TokenTypes.LPAREN)
         self.next()
         expr = []
-        i = 0
-        # TODO: quite dangerous statement :). Probably need to be changed
-        while True:
-            if getTokenType(self.peekN(i)) == TokenTypes.RPAREN:
-                break
-            i += 1
-        self.tokens.insert(self.cursor + i, {"token_type": TokenTypes.PARSE_BREAK})
+        self.indicateChunk(TokenTypes.RPAREN)
         while getTokenType(self.pick()) != TokenTypes.RPAREN:
             if getTokenType(self.pick()) == TokenTypes.SEMICOL:
                 self.next()
@@ -224,10 +234,10 @@ class Parser:
     def parseStmt(self):
         match getTokenType(self.pick()):
             case TokenTypes.TYPE:
-                if getTokenType(self.peekN(2)) == TokenTypes.ASSIGN:
-                    return self.parseInitStmt()
-                elif getTokenType(self.peekN(1)) == TokenTypes.FN:
+                if getTokenType(self.peekN(1)) == TokenTypes.FN:
                     return self.parseFuncDeclarationStmt()
+                else:
+                    return self.parseInitStmt()
             case TokenTypes.FOR:
                 return self.parseForStmt()
             case TokenTypes.WHILE:
