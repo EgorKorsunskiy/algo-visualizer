@@ -165,3 +165,43 @@ class TestWalker:
             """
         ]
         assert self._eval(walker, self._getAst(lexer, parser, inputs[0])) == 20
+    
+    def testConditionStatements(self, lexer, parser, walker):
+        inputs = [
+            """
+                int c = 10;
+                if(c<15) {
+                    c = c + 10;
+                }
+                else {
+                    c = c - 5;
+                }
+                c;
+            """,
+            """
+                int c = 10;
+                if(c<10) {
+                    c = c + 10;
+                }
+                else {
+                    c = c - 5;
+                }
+                c;
+            """,
+            """
+                int c = 10;
+                if(c<10) {
+                    c = c + 10;
+                }
+                else if(c == 10) {
+                    c--;
+                }
+                else {
+                    c = c - 5;
+                }
+                c;  
+            """
+        ]
+        assert self._eval(walker, self._getAst(lexer, parser, inputs[0])) == 20
+        assert self._eval(walker, self._getAst(lexer, parser, inputs[1])) == 5
+        assert self._eval(walker, self._getAst(lexer, parser, inputs[2])) == 9

@@ -5,7 +5,9 @@ from parser.ast_entities import (
     AtomicExprNode,
     BlockStmt,
     CallExprNode,
+    ConditionStmt,
     FuncStatement,
+    IfStmt,
     IndexExprNode,
     InfixExprNode,
     InitStmt,
@@ -47,6 +49,14 @@ class Walker:
             # bool op
             case TokenTypes.LT:
                 return self.eval(node.left, env) < self.eval(node.right, env)
+            case TokenTypes.LTE:
+                return self.eval(node.left, env) <= self.eval(node.right, env)
+            case TokenTypes.GT:
+                return self.eval(node.left, env) > self.eval(node.right, env)
+            case TokenTypes.GTE:
+                return self.eval(node.left, env) >= self.eval(node.right, env)
+            case TokenTypes.EQ:
+                return self.eval(node.left, env) == self.eval(node.right, env)
 
     def evalPrefixExpr(self, node, env: Environment):
         def update_value(node, result):
@@ -167,6 +177,20 @@ class Walker:
             evaluated_condition = self.eval(condition, for_env)
         return output
 
+    def evalConditionStmt(self, node, env: Environment):
+        evaluated_condition = self.eval(node.condition, env)
+        if evaluated_condition:
+            self.log.if_record()
+            return self.eval(node.thenBody, env)
+        for alternative in node.alternatives.stmts:
+            evaluated_condition = self.eval(alternative.condition, env)
+            if evaluated_condition:
+                self.log.elif_record()
+                return self.eval(alternative.thenBody, env)
+        if node.rejectBody:
+            self.log.else_record()
+            return self.eval(node.rejectBody, env)
+
     def eval(self, node, env: Environment):
         match node:
             case AtomicExprNode():
@@ -193,5 +217,9 @@ class Walker:
                 return self.evalReturnStmt(node, env)
             case LoopStmt():
                 return self.evalLoopStmt(node, env)
+            case IfStmt():
+                return self.evalConditionStmt(node, env)
+            case ConditionStmt():
+                return self.evalConditionStmt(node, env)
             case BlockStmt() | ProgrammeNode():
                 return self.evalBlockStmt(node, env)

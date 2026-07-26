@@ -30,18 +30,27 @@ class Log:
 
     def set(self, varType, var, index=-1):
         self._create_record(RECORD_TYPE.SET, varType, var, index)
-    
+
     def insert(self, varType, var, index=-1):
         self._create_record(RECORD_TYPE.INSERT, varType, var, index)
-    
+
     def update(self, varType, var, index=-1):
         self._create_record(RECORD_TYPE.UPDATE, varType, var, index)
-    
+
     def delete(self, varType, var, index=-1):
         self._create_record(RECORD_TYPE.DELETE, varType, var, index)
-    
+
     def while_record(self):
         self._create_record(RECORD_TYPE.WHILE, VAR_TYPE.NONE, None)
+
     def for_record(self):
         self._create_record(RECORD_TYPE.FOR, VAR_TYPE.NONE, None)
-    
+
+    def if_record(self):
+        self._create_record(RECORD_TYPE.IF, VAR_TYPE.NONE, None)
+
+    def elif_record(self):
+        self._create_record(RECORD_TYPE.ELIF, VAR_TYPE.NONE, None)
+
+    def else_record(self):
+        self._create_record(RECORD_TYPE.ELSE, VAR_TYPE.NONE, None)

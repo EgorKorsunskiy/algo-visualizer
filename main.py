@@ -1,6 +1,5 @@
 from lexer.main import Lexer
 from parser.main import Parser
-from tests.test_utils import inOrderTraverseAST
 from walker.environment import Environment
 from walker.main import Walker
 
