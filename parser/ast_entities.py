@@ -1,4 +1,4 @@
-from tests.test_utils import compareTokens
+from tests.test_utils import compareLists, compareTokens
 
 
 class ExprNode:
@@ -148,3 +148,25 @@ class FuncStatement:
 
     def __repr__(self) -> str:
         return f"{self.name}\n"
+
+
+class HintStatement:
+    def __init__(self, type=None, target=None, values=None) -> None:
+        if values is None:
+            values = []
+        self.type = type
+        self.target = target
+        self.values = values
+
+    def __eq__(self, other: object) -> bool:
+        if (
+            not hasattr(other, "type")
+            or not hasattr(other, "target")
+            or not hasattr(other, "values")
+        ):
+            return False
+        return (
+            self.type == other.type
+            and self.target == other.target
+            and compareLists(self.values, other.values)
+        )

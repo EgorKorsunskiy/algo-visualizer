@@ -1,3 +1,4 @@
+from ast import stmt
 import pytest
 
 from lexer.main import Lexer
@@ -7,14 +8,16 @@ from parser.ast_entities import (
     AssignExprNode,
     AtomicExprNode,
     CallExprNode,
+    HintStatement,
     IndexExprNode,
     InfixExprNode,
     InitStmt,
     SuffixExprNode,
 )
 from parser.main import Parser
-from tests.test_utils import compareLists, inOrderTraverseAST
+from tests.test_utils import compareLists, compareTokens, inOrderTraverseAST
 from utils.main import createToken
+from walker.log import HINT_TYPE
 
 
 @pytest.fixture
@@ -174,7 +177,7 @@ class TestParser:
             None,
             2,
         )
-        assert ast.stmts[0].length.tok['value'] == 2
+        assert ast.stmts[0].length.tok["value"] == 2
 
     def testFnDeclarationStatement(self, lexer, parser):
         input = """
@@ -297,4 +300,22 @@ class TestParser:
         ]
         self._run_and_compare_expr(
             lexer, parser, input, expected_third, ast.stmts[0].condition[2]
+        )
+
+    def testHintStatement(self, lexer, parser):
+        input = """
+            //@index<someName,2,4>
+        """
+        ast = self._get_ast(lexer, parser, input)
+        assert isinstance(ast.stmts[0], HintStatement)
+        assert ast.stmts[0].type == HINT_TYPE.INDEX
+        assert ast.stmts[0].target == AtomicExprNode(
+            createToken(TokenTypes.IDENT, "someName")
+        )
+        assert compareLists(
+            ast.stmts[0].values,
+            [
+                AtomicExprNode(createToken(TokenTypes.INT, 2)),
+                AtomicExprNode(createToken(TokenTypes.INT, 4)),
+            ],
         )

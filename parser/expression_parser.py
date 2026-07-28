@@ -32,6 +32,7 @@ class PrattParser:
         self.prefixParseFnc[TokenTypes.FALSE] = self.parseAtomicExpr
         self.prefixParseFnc[TokenTypes.LPAREN] = self.parseGroupedExpr
         self.prefixParseFnc[TokenTypes.FN] = self.parseCallExpr
+        self.prefixParseFnc[TokenTypes.LT] = self.parseListExpr
 
         self.infixParseFnc[TokenTypes.PLUS] = self.parseInfixExpr
         self.infixParseFnc[TokenTypes.MIN] = self.parseInfixExpr
@@ -53,6 +54,11 @@ class PrattParser:
         self.size = None
         self.cursor = None
         self.expr = None
+
+    def parseListExpr(self):
+        self.next()
+        # we can't use TokenTypes.GT because it's already registred as infixParseFunc
+        return self.parseCommaSeparatedList(TokenTypes.EOF)
 
     def parseCommaSeparatedList(self, stopToken):
         values = []

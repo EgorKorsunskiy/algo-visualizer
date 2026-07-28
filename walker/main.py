@@ -7,6 +7,7 @@ from parser.ast_entities import (
     CallExprNode,
     ConditionStmt,
     FuncStatement,
+    HintStatement,
     IfStmt,
     IndexExprNode,
     InfixExprNode,
@@ -27,6 +28,10 @@ class Walker:
         self.log = Log()
 
     def evalLiteral(self, node, env: Environment):
+        if getTokenType(node) == TokenTypes.FALSE:
+            return False
+        if getTokenType(node) == TokenTypes.TRUE:
+            return True
         if "value" in node:
             stored_val = env.get(node["value"])
             if stored_val is not None:
@@ -217,6 +222,12 @@ class Walker:
             self.log.else_record()
             return self.eval(node.rejectBody, env)
 
+    def evalHintStmt(self, node, _: Environment):
+        hintType = node.type
+        hintTarget = node.target.tok["value"]
+        hintValues = list(map(lambda atom: atom.tok["value"], node.values))
+        self.log._create_hint_record(hintType, hintTarget, hintValues)
+
     def eval(self, node, env: Environment):
         match node:
             case AtomicExprNode():
@@ -247,5 +258,7 @@ class Walker:
                 return self.evalConditionStmt(node, env)
             case ConditionStmt():
                 return self.evalConditionStmt(node, env)
+            case HintStatement():
+                return self.evalHintStmt(node, env)
             case BlockStmt() | ProgrammeNode():
                 return self.evalBlockStmt(node, env)

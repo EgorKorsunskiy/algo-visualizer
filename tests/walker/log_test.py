@@ -4,7 +4,7 @@ from lexer.main import Lexer
 from parser.main import Parser
 from tests.test_utils import compareLists
 from walker.environment import Environment
-from walker.log import RECORD_TYPE, VAR_TYPE
+from walker.log import COMMAND_TYPE, HINT_TYPE, RECORD_TYPE, VAR_TYPE
 from walker.main import Walker
 
 
@@ -41,22 +41,26 @@ class TestLog:
             a = 10;
         """
         expected = [
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "a", 1, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "a", 3, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "a", 10, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "a", 1, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "a", 3, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "a", 10, -1),
         ]
-        assert compareLists(self._getLog(walker, self._getAst(lexer, parser, input)).log, expected)
-    
+        assert compareLists(
+            self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
+        )
+
     def testArrayExpressions(self, lexer, parser, walker):
         input = """
             int a = {1,2,3};
             a[1] = 22;
         """
         expected = [
-            (RECORD_TYPE.SET, VAR_TYPE.ARRAY, "a", [1,2,3], -1),
-            (RECORD_TYPE.INSERT, VAR_TYPE.ARRAY, "a", 22, 1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.ARRAY, "a", [1, 2, 3], -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.INSERT, VAR_TYPE.ARRAY, "a", 22, 1),
         ]
-        assert compareLists(self._getLog(walker, self._getAst(lexer, parser, input)).log, expected)
+        assert compareLists(
+            self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
+        )
 
     def testWhileStatement(self, lexer, parser, walker):
         input = """
@@ -66,16 +70,18 @@ class TestLog:
             }
         """
         expected = [
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 0, -1),
-            (RECORD_TYPE.WHILE, VAR_TYPE.NONE, None, None, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 1, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 2, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 3, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 4, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 5, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 0, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.WHILE, VAR_TYPE.NONE, None, None, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 1, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 2, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 3, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 4, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 5, -1),
         ]
-        assert compareLists(self._getLog(walker, self._getAst(lexer, parser, input)).log, expected)
-    
+        assert compareLists(
+            self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
+        )
+
     def testForStatement(self, lexer, parser, walker):
         input = """
             int g = 0;
@@ -84,23 +90,25 @@ class TestLog:
             }
         """
         expected = [
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 0, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "i", 0, -1),
-            (RECORD_TYPE.FOR, VAR_TYPE.NONE, None, None, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 1, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "i", 1, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 2, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "i", 2, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 3, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "i", 3, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 4, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "i", 4, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 5, -1),
-            (RECORD_TYPE.SET, VAR_TYPE.PRIMITIVE, "i", 5, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 0, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "i", 0, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.FOR, VAR_TYPE.NONE, None, None, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 1, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "i", 1, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 2, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "i", 2, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 3, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "i", 3, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 4, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "i", 4, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 5, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "i", 5, -1),
         ]
 
-        assert compareLists(self._getLog(walker, self._getAst(lexer, parser, input)).log, expected)
-    
+        assert compareLists(
+            self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
+        )
+
     def testIfConditionStatement(self, lexer, parser, walker):
         input = """
             int c[3] = {1,4,10};
@@ -112,12 +120,21 @@ class TestLog:
             }
         """
         expected = [
-            (RECORD_TYPE.SET, VAR_TYPE.ARRAY, "c", [1,4,10], -1),
-            (RECORD_TYPE.IF, VAR_TYPE.NONE, None, None, -1),
-            (RECORD_TYPE.INSERT, VAR_TYPE.ARRAY, "c", 200, 0),
+            (
+                RECORD_TYPE.COMMAND,
+                COMMAND_TYPE.SET,
+                VAR_TYPE.ARRAY,
+                "c",
+                [1, 4, 10],
+                -1,
+            ),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.IF, VAR_TYPE.NONE, None, None, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.INSERT, VAR_TYPE.ARRAY, "c", 200, 0),
         ]
 
-        assert compareLists(self._getLog(walker, self._getAst(lexer, parser, input)).log, expected)
+        assert compareLists(
+            self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
+        )
 
     def testElifConditionStatement(self, lexer, parser, walker):
         input = """
@@ -133,12 +150,21 @@ class TestLog:
             }
         """
         expected = [
-            (RECORD_TYPE.SET, VAR_TYPE.ARRAY, "c", [1,4,10], -1),
-            (RECORD_TYPE.ELIF, VAR_TYPE.NONE, None, None, -1),
-            (RECORD_TYPE.INSERT, VAR_TYPE.ARRAY, "c", 2, 0),
+            (
+                RECORD_TYPE.COMMAND,
+                COMMAND_TYPE.SET,
+                VAR_TYPE.ARRAY,
+                "c",
+                [1, 4, 10],
+                -1,
+            ),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.ELIF, VAR_TYPE.NONE, None, None, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.INSERT, VAR_TYPE.ARRAY, "c", 2, 0),
         ]
 
-        assert compareLists(self._getLog(walker, self._getAst(lexer, parser, input)).log, expected)
+        assert compareLists(
+            self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
+        )
 
     def testElseConditionStatement(self, lexer, parser, walker):
         input = """
@@ -154,9 +180,31 @@ class TestLog:
             }
         """
         expected = [
-            (RECORD_TYPE.SET, VAR_TYPE.ARRAY, "c", [1,4,10], -1),
-            (RECORD_TYPE.ELSE, VAR_TYPE.NONE, None, None, -1),
-            (RECORD_TYPE.INSERT, VAR_TYPE.ARRAY, "c", 0, 0),
+            (
+                RECORD_TYPE.COMMAND,
+                COMMAND_TYPE.SET,
+                VAR_TYPE.ARRAY,
+                "c",
+                [1, 4, 10],
+                -1,
+            ),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.ELSE, VAR_TYPE.NONE, None, None, -1),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.INSERT, VAR_TYPE.ARRAY, "c", 0, 0),
         ]
 
-        assert compareLists(self._getLog(walker, self._getAst(lexer, parser, input)).log, expected)
+        assert compareLists(
+            self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
+        )
+
+    def testHintStatements(self, lexer, parser, walker):
+        inputs = [
+            """
+                //@index<someName,2,4>
+            """
+        ]
+        outputs = [[(RECORD_TYPE.HINT, HINT_TYPE.INDEX, "someName", [2, 4])]]
+        for i in range(len(inputs)):
+            assert compareLists(
+                self._getLog(walker, self._getAst(lexer, parser, inputs[i])).log,
+                outputs[i],
+            )

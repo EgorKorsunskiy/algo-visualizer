@@ -1,8 +1,10 @@
+from _pytest.monkeypatch import V
 from lexer.token_lists import TokenTypes
 from parser.ast_entities import (
     BlockStmt,
     ConditionStmt,
     FuncStatement,
+    HintStatement,
     IfStmt,
     InitStmt,
     LoopStmt,
@@ -231,6 +233,23 @@ class Parser:
         expr = self.parseExpr()
         return ReturnStatement(expr)
 
+    def parseHintStmt(self):
+        hintStmt = HintStatement()
+        self.next()
+        self.expect(TokenTypes.HINT_VALUE)
+        currToken = self.pick()
+        self.next()
+        if getTokenType(self.pick()) == TokenTypes.LT:
+            self.indicateChunk(TokenTypes.GT)
+            values = self.parseExpr()
+            self.expect(TokenTypes.GT)
+            self.next()
+            if len(values) >= 1:
+                hintStmt.target = values[0]
+                hintStmt.values = values[1:]
+        hintStmt.type = currToken["value"]
+        return hintStmt
+
     def parseStmt(self):
         match getTokenType(self.pick()):
             case TokenTypes.TYPE:
@@ -246,6 +265,8 @@ class Parser:
                 return self.parseIfStmt()
             case TokenTypes.RETURN:
                 return self.parseReturnStmt()
+            case TokenTypes.HINT_INIT:
+                return self.parseHintStmt()
             case TokenTypes.PARSE_BREAK:
                 return
             case _:

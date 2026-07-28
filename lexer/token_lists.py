@@ -1,5 +1,7 @@
 from enum import Enum, auto
 
+from walker.log import HINT_TYPE
+
 
 class TokenTypes(Enum):
     # operations
@@ -48,6 +50,10 @@ class TokenTypes(Enum):
     PARSE_BREAK = auto()
     EOF = auto()
     FN = auto()
+    DOT = auto()
+    COMMENT = auto()
+    HINT_INIT = auto()
+    HINT_VALUE = auto()
 
 
 string_to_token_map = {
@@ -86,6 +92,8 @@ string_to_token_map = {
     "!": {"token_type": TokenTypes.NOT},
     "'": {"token_type": TokenTypes.QUOTE},
     '"': {"token_type": TokenTypes.DOUBLE_QUOTE},
+    "@": {"token_type": TokenTypes.DOT},
+    "index": {"token_type": TokenTypes.HINT_VALUE, "value": HINT_TYPE.INDEX},
 }
 
 merge_rules = {
@@ -101,4 +109,6 @@ merge_rules = {
     f"{TokenTypes.DOUBLE_QUOTE}_{TokenTypes.IDENT}": {"token_type": TokenTypes.IDENT},
     f"{TokenTypes.IDENT}_{TokenTypes.QUOTE}": {"token_type": TokenTypes.IDENT},
     f"{TokenTypes.IDENT}_{TokenTypes.DOUBLE_QUOTE}": {"token_type": TokenTypes.IDENT},
+    f"{TokenTypes.DIVIDE}_{TokenTypes.DIVIDE}": {"token_type": TokenTypes.COMMENT},
+    f"{TokenTypes.COMMENT}_{TokenTypes.DOT}": {"token_type": TokenTypes.HINT_INIT},
 }

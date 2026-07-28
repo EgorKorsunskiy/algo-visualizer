@@ -164,3 +164,22 @@ class TestLexer:
         ]
 
         self._run_and_compare_lexer(lexer, input, expected_tokens)
+
+    def testHints(self, lexer):
+        input = """
+        //@index<someName,2,4>
+        """
+        expected_tokens = [
+            TokenTypes.HINT_INIT,
+            TokenTypes.HINT_VALUE,
+            TokenTypes.LT,
+            TokenTypes.IDENT,
+            TokenTypes.COMMA,
+            TokenTypes.INT,
+            TokenTypes.COMMA,
+            TokenTypes.INT,
+            TokenTypes.GT,
+            TokenTypes.EOF,
+        ]
+
+        self._run_and_compare_lexer(lexer, input, expected_tokens)
