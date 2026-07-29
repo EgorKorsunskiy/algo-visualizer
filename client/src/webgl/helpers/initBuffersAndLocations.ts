@@ -14,7 +14,6 @@ export function initBuffers(gl: WebGLRenderingContext, positionData: Float32Arra
 export function initAndBindLocations(gl: WebGLRenderingContext, program: WebGLProgram, positionBuffer: WebGLBuffer, colorBuffer: WebGLBuffer) {
     const positionLocation = gl.getAttribLocation(program, "a_position")
     const colorLocation = gl.getAttribLocation(program, "a_color")
-    const texPosLocation = gl.getAttribLocation(program, "a_texPos")
     const resolutionLocation = gl.getUniformLocation(program, "u_resolution")
     const useTextureLocation = gl.getUniformLocation(program, "u_useTexture")
 
