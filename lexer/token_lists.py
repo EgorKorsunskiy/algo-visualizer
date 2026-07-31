@@ -94,6 +94,7 @@ string_to_token_map = {
     '"': {"token_type": TokenTypes.DOUBLE_QUOTE},
     "@": {"token_type": TokenTypes.DOT},
     "index": {"token_type": TokenTypes.HINT_VALUE, "value": HINT_TYPE.INDEX},
+    "select": {"token_type": TokenTypes.HINT_VALUE, "value": HINT_TYPE.SELECT},
 }
 
 merge_rules = {
