@@ -30,6 +30,7 @@ class VAR_TYPE(Enum):
 class HINT_TYPE(Enum):
     NONE = auto()
     INDEX = auto()
+    SELECT = auto()
 
 
 class Log:
