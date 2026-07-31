@@ -2,35 +2,35 @@ from enum import Enum, auto
 
 
 class RECORD_TYPE(Enum):
-    COMMAND = auto()
-    HINT = auto()
+    COMMAND = "COMMAND"
+    HINT = "HINT"
 
 
 class COMMAND_TYPE(Enum):
-    SET = auto()
-    INSERT = auto()
-    UPDATE = auto()
-    DELETE = auto()
-    FOR = auto()
-    WHILE = auto()
-    IF = auto()
-    ELIF = auto()
-    ELSE = auto()
-    NONE = auto()
+    SET = "SET"
+    INSERT = "INSERT"
+    UPDATE = "UPDATE"
+    DELETE = "DELETE"
+    FOR = "FOR"
+    WHILE = "WHILE"
+    IF = "IF"
+    ELIF = "ELIF"
+    ELSE = "ELSE"
+    NONE = "NONE"
 
 
 class VAR_TYPE(Enum):
-    NONE = auto()
-    PRIMITIVE = auto()
-    ARRAY = auto()
-    MAP = auto()
-    GRAPH = auto()
+    NONE = "NONE"
+    PRIMITIVE = "PRIMITIVE"
+    ARRAY = "ARRAY"
+    MAP = "MAP"
+    GRAPH = "GRAPH"
 
 
 class HINT_TYPE(Enum):
-    NONE = auto()
-    INDEX = auto()
-    SELECT = auto()
+    NONE = "NONE"
+    INDEX = "INDEX"
+    SELECT = "SELECT"
 
 
 class Log:
