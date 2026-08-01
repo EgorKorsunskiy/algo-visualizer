@@ -1,8 +1,8 @@
-from ast import stmt
 import pytest
 
 from lexer.main import Lexer
 from lexer.token_lists import TokenTypes
+from libraries.main import Parser
 from parser.ast_entities import (
     ArrayExprNode,
     AssignExprNode,
@@ -14,8 +14,7 @@ from parser.ast_entities import (
     InitStmt,
     SuffixExprNode,
 )
-from parser.main import Parser
-from tests.test_utils import compareLists, compareTokens, inOrderTraverseAST
+from tests.test_utils import compareLists, inOrderTraverseAST
 from utils.main import createToken
 from walker.log import HINT_TYPE
 

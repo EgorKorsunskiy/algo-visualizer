@@ -1,11 +1,10 @@
 import pytest
 
 from lexer.main import Lexer
-from parser.main import Parser
+from libraries.main import Parser, Walker
 from tests.test_utils import compareLists
 from walker.environment import Environment
 from walker.log import COMMAND_TYPE, HINT_TYPE, RECORD_TYPE, VAR_TYPE
-from walker.main import Walker
 
 
 @pytest.fixture
@@ -51,13 +50,14 @@ class TestLog:
 
     def testArrayExpressions(self, lexer, parser, walker):
         input = """
-            int a = {1,2,3};
+            int a[3] = {1,2,3};
             a[1] = 22;
         """
         expected = [
             (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.ARRAY, "a", [1, 2, 3], -1),
             (RECORD_TYPE.COMMAND, COMMAND_TYPE.INSERT, VAR_TYPE.ARRAY, "a", 22, 1),
         ]
+
         assert compareLists(
             self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
         )

@@ -1,5 +1,7 @@
 from enum import Enum, auto
 
+from parser.ast_entities import InitStmt
+
 
 class RECORD_TYPE(Enum):
     COMMAND = "COMMAND"
@@ -23,6 +25,7 @@ class VAR_TYPE(Enum):
     NONE = "NONE"
     PRIMITIVE = "PRIMITIVE"
     ARRAY = "ARRAY"
+    VECTOR = "VECTOR"
     MAP = "MAP"
     GRAPH = "GRAPH"
 
@@ -85,7 +88,7 @@ class Log:
         self._create_hint_record(HINT_TYPE.INDEX, target, values)
 
     @staticmethod
-    def get_var_type(value, assignValue=None):
+    def get_var_type_from_values(value, assignValue=None):
         varType = VAR_TYPE.NONE
         match value:
             case list():
@@ -94,5 +97,10 @@ class Log:
                 varType = VAR_TYPE.PRIMITIVE
             case _:
                 if assignValue:
-                    varType = Log.get_var_type(assignValue)
+                    varType = Log.get_var_type_from_values(assignValue)
         return varType
+
+    # the method works only with InitStmt because only it contains type information
+    @staticmethod
+    def get_var_type_from_type(node: InitStmt):
+        return node.typeClass

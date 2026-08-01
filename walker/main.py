@@ -20,10 +20,10 @@ from parser.ast_entities import (
 )
 from utils.main import getTokenType
 from walker.environment import Environment
-from walker.log import VAR_TYPE, Log
+from walker.log import Log
 
 
-class Walker:
+class BasicWalker:
     def __init__(self) -> None:
         self.log = Log()
 
@@ -68,7 +68,7 @@ class Walker:
             if not isinstance(node.right, AtomicExprNode):
                 raise Exception(f"Invalid left side of {getTokenType(node.tok)}")
             self.log.set(
-                Log.get_var_type(self.eval(node.right, env), result),
+                Log.get_var_type_from_values(self.eval(node.right, env), result),
                 node.right.tok["value"],
                 result,
             )
@@ -91,7 +91,7 @@ class Walker:
             if not isinstance(node.left, AtomicExprNode):
                 raise Exception(f"Invalid left side of {getTokenType(node.tok)}")
             self.log.set(
-                Log.get_var_type(self.eval(node.left, env), result),
+                Log.get_var_type_from_values(self.eval(node.left, env), result),
                 node.left.tok["value"],
                 result,
             )
@@ -113,7 +113,7 @@ class Walker:
             env.set(node.left.tok["value"], evaluated_value, True)
             varValue = self.eval(node.left, env)
             self.log.set(
-                Log.get_var_type(varValue, evaluated_value),
+                Log.get_var_type_from_values(varValue, evaluated_value),
                 node.left.tok["value"],
                 evaluated_value,
             )
@@ -121,7 +121,7 @@ class Walker:
             index = self.eval(node.left.right, env)
             varValue = self.eval(node.left.left, env)
             self.log.insert(
-                Log.get_var_type(varValue, evaluated_value),
+                Log.get_var_type_from_values(varValue, evaluated_value),
                 node.left.left.tok["value"],
                 evaluated_value,
                 index,
@@ -145,15 +145,16 @@ class Walker:
 
     def evalInitStmt(self, node, env: Environment) -> None:
         evaluated_value = self.eval(node.value, env)
+        env.set("#type_" + node.name["value"], node.typeClass)
         env.set(node.name["value"], evaluated_value)
-        varValue = env.get(node.name["value"])
         self.log.set(
-            Log.get_var_type(varValue, evaluated_value),
+            Log.get_var_type_from_type(node),
             node.name["value"],
             evaluated_value,
         )
 
     def evalFnLiteral(self, node, env: Environment) -> None:
+        env.set("#type_"+node.name["value"], node.typeClass)
         env.set(node.name["value"], node)
 
     def evalFnCallExpr(self, node, env: Environment):
@@ -161,15 +162,29 @@ class Walker:
         fn_env = Environment(outer=env)
         for i in range(len(node.params)):
             evaluated_value = self.eval(node.params[i], env)
-            fn_env.set(fn.args[i].name["value"], evaluated_value)
+            argName = fn.args[i].name["value"]
+            fn_env.set(argName, evaluated_value)
+            if (
+                isinstance(node.params[i], AtomicExprNode)
+                and env.get(node.params[i].tok["value"]) is not None
+            ):
+                continue
+            self.log.set(
+                Log.get_var_type_from_values(evaluated_value), argName, evaluated_value
+            )
         return self.eval(fn.body, fn_env)
 
     def evalReturnStmt(self, node, env: Environment):
+        evaluated_value = self.eval(node.right, env)
+        env.set("_returned", evaluated_value)
         return self.eval(node.right, env)
 
     def evalBlockStmt(self, node, env):
         output = None
         for stmt in node.stmts:
+            returned = env.get("_returned")
+            if returned != False:
+                return returned
             result = self.eval(stmt, env)
             if isinstance(stmt, ReturnStatement):
                 return result
@@ -188,6 +203,9 @@ class Walker:
         output = None
         self.log.while_record()
         while evaluated_condition:
+            returned = env.get("_returned")
+            if returned != False:
+                return returned
             output = self.eval(node.body, env)
             evaluated_condition = self.eval(condition, env)
         return output
@@ -203,6 +221,9 @@ class Walker:
         evaluated_condition = self.eval(condition, for_env)
         output = None
         while evaluated_condition:
+            returned = env.get("_returned")
+            if returned != False:
+                return returned
             output = self.eval(node.body, for_env)
             self.eval(stepExpr, for_env)
             evaluated_condition = self.eval(condition, for_env)

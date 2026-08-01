@@ -11,8 +11,9 @@ from parser.ast_entities import (
     ProgrammeNode,
     ReturnStatement,
 )
-from parser.expression_parser import LOWEST, PrattParser
+from parser.expression_parser import LOWEST, BasicPrattParser
 from utils.main import getTokenType
+from walker.log import VAR_TYPE
 
 
 class ExpectedError(Exception):
@@ -21,9 +22,9 @@ class ExpectedError(Exception):
         super().__init__(self.message)
 
 
-class Parser:
+class BasicParser:
     def __init__(self) -> None:
-        self.prattParser = PrattParser()
+        self.prattParser = BasicPrattParser()
         self.tokens = []
         self.cursor = 0
 
@@ -83,7 +84,7 @@ class Parser:
         return BlockStmt(bodyStmts)
 
     def parseInitLeftSide(self):
-        # TODO: add support for pointers && probably different flow for func args
+        # TODO: add support for pointers
         initTypeTok = self.pick()
         self.next()
         self.expect(TokenTypes.IDENT)
@@ -99,6 +100,10 @@ class Parser:
         initNode.type = initTypeTok
         initNode.name = initNameTok
         initNode.length = initLength
+        if initLength is not None:
+            initNode.typeClass = VAR_TYPE.ARRAY
+        else:
+            initNode.typeClass = VAR_TYPE.PRIMITIVE
         return initNode
 
     def parseExpr(self):
@@ -117,10 +122,13 @@ class Parser:
     def parseInitStmt(self):
         initNode = self.parseInitLeftSide()
         self.next()
-        self.expect(TokenTypes.ASSIGN)
-        self.next()
-        exprAST = self.parseExpr()
-        initNode.value = exprAST
+        if getTokenType(self.pick()) == TokenTypes.ASSIGN:
+            self.expect(TokenTypes.ASSIGN)
+            self.next()
+            exprAST = self.parseExpr()
+            initNode.value = exprAST
+        else:
+            self.expect(TokenTypes.SEMICOL)
         return initNode
 
     def parseFuncDeclarationStmt(self):

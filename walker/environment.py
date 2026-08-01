@@ -1,6 +1,10 @@
 class Environment:
-    def __init__(self, store={}, outer=None) -> None:
-        self.store = {}
+    def __init__(self, store=None, outer=None, funcBlock=True) -> None:
+        if store is None:
+            store = {}
+        self.store = store
+        if funcBlock:
+            store["_returned"] = False
         self.outer = outer
 
     def find_store(self, key):

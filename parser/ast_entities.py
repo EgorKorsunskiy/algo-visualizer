@@ -1,6 +1,5 @@
 from tests.test_utils import compareLists, compareTokens
 
-
 class ExprNode:
     def __init__(self, tok=None) -> None:
         self.tok = tok
@@ -67,6 +66,11 @@ class AtomicExprNode(ExprNode):
         super().__init__(tok)
 
 
+class TypeExprNode(ExprNode):
+    def __init__(self, tok=None) -> None:
+        super().__init__(tok)
+
+
 class BlockStmt:
     def __init__(self, stmts=None) -> None:
         if stmts == None:
@@ -80,11 +84,14 @@ class ProgrammeNode(BlockStmt):
 
 
 class InitStmt:
-    def __init__(self, type=None, name=None, value=None, length=None) -> None:
+    def __init__(
+        self, type=None, name=None, value=None, length=None, typeClass=None
+    ) -> None:
         self.type = type
         self.name = name
         self.value = value
         self.isArray = bool(length)
+        self.typeClass = typeClass
         self.length = length
 
     def __repr__(self) -> str:

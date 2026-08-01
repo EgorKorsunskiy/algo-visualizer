@@ -8,6 +8,7 @@ from parser.ast_entities import (
     InfixExprNode,
     PrefixExprNode,
     SuffixExprNode,
+    TypeExprNode,
 )
 from utils.main import createToken, getTokenType
 
@@ -16,7 +17,7 @@ LOWEST = 0
 
 
 # Parser for expressions
-class PrattParser:
+class BasicPrattParser:
     def __init__(self):
         self.infixParseFnc = {}
         self.prefixParseFnc = {}
@@ -30,6 +31,7 @@ class PrattParser:
         self.prefixParseFnc[TokenTypes.INT] = self.parseAtomicExpr
         self.prefixParseFnc[TokenTypes.TRUE] = self.parseAtomicExpr
         self.prefixParseFnc[TokenTypes.FALSE] = self.parseAtomicExpr
+        self.prefixParseFnc[TokenTypes.TYPE] = self.parseTypeExpr
         self.prefixParseFnc[TokenTypes.LPAREN] = self.parseGroupedExpr
         self.prefixParseFnc[TokenTypes.FN] = self.parseCallExpr
         self.prefixParseFnc[TokenTypes.LT] = self.parseListExpr
@@ -111,6 +113,10 @@ class PrattParser:
     def parseAtomicExpr(self):
         currToken = self.pick()
         return AtomicExprNode(currToken)
+
+    def parseTypeExpr(self):
+        currToken = self.pick()
+        return TypeExprNode(currToken)
 
     def parsePrefixExpr(self):
         currToken = self.pick()
