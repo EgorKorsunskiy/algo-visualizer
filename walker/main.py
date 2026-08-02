@@ -1,4 +1,5 @@
 from lexer.token_lists import TokenTypes
+from libraries.unions import builtin_functions
 from parser.ast_entities import (
     ArrayExprNode,
     AssignExprNode,
@@ -13,6 +14,7 @@ from parser.ast_entities import (
     InfixExprNode,
     InitStmt,
     LoopStmt,
+    MemberAccessExprNode,
     PrefixExprNode,
     ProgrammeNode,
     ReturnStatement,
@@ -129,6 +131,19 @@ class BasicWalker:
         else:
             raise Exception("Invalid left side of =")
 
+    def evalMemberAccessExpr(self, node, env: Environment):
+        evaluated_value = self.eval(node.left, env)
+        # TODO: make it work with complex expression such as (a&b).size()
+        evaluated_value_type = env.get("#type_" + node.left.tok["value"])
+        if isinstance(node.right, CallExprNode):
+            function_name = node.right.tok["value"]
+            params = []
+            for param in node.right.params:
+                params.append(self.eval(param, env))
+            return builtin_functions[evaluated_value_type][function_name](
+                evaluated_value, *params
+            )
+
     def evalArrayExpr(self, node, _: Environment):
         return list(map(lambda atom: atom.tok["value"], node.values))
 
@@ -154,7 +169,7 @@ class BasicWalker:
         )
 
     def evalFnLiteral(self, node, env: Environment) -> None:
-        env.set("#type_"+node.name["value"], node.typeClass)
+        env.set("#type_" + node.name["value"], node.typeClass)
         env.set(node.name["value"], node)
 
     def evalFnCallExpr(self, node, env: Environment):
@@ -263,6 +278,8 @@ class BasicWalker:
                 return self.evalAssignExpr(node, env)
             case ArrayExprNode():
                 return self.evalArrayExpr(node, env)
+            case MemberAccessExprNode():
+                return self.evalMemberAccessExpr(node, env)
             case IndexExprNode():
                 return self.evalIndexExpr(node, env)
             case InitStmt():

@@ -55,6 +55,12 @@ class AssignExprNode(ExprNode):
         self.right = right
 
 
+class MemberAccessExprNode(ExprNode):
+    def __init__(self, tok, left=None, right=None) -> None:
+        super().__init__(tok)
+        self.left = left
+        self.right = right
+
 class CallExprNode(ExprNode):
     def __init__(self, tok=None, params=None) -> None:
         super().__init__(tok)

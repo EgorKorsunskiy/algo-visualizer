@@ -4,6 +4,8 @@ from walker.environment import Environment
 
 FRAGMENT = """
 vector<int> a = {1,2,3};
+a.push_back(5);
+a;
 """
 
 
@@ -15,8 +17,8 @@ def main():
     ast = parser.parse(tokens)
     env = Environment()
     walker = Walker()
-    walker.eval(ast, env)
-    print(walker.log.log)
+    res = walker.eval(ast, env)
+    print(res)
 
 if __name__ == "__main__":
     main()

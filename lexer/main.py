@@ -80,7 +80,8 @@ class Lexer:
         return self.is_letter(char) or self.is_digit(char)
 
     def is_letter(self, char: str) -> bool:
-        return char.isalpha()
+        special_chars = ["_"]
+        return char.isalpha() or char in special_chars
 
     def is_digit(self, char: str) -> bool:
         return char.isdigit()

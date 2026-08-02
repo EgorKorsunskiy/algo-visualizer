@@ -31,6 +31,7 @@ class TokenTypes(Enum):
     NOT = auto()
     QUOTE = auto()
     DOUBLE_QUOTE = auto()
+    DOT = auto()
     # keywords
     TYPE = auto()
     FOR = auto()
@@ -50,7 +51,7 @@ class TokenTypes(Enum):
     PARSE_BREAK = auto()
     EOF = auto()
     FN = auto()
-    DOT = auto()
+    AT = auto()
     COMMENT = auto()
     HINT_INIT = auto()
     HINT_VALUE = auto()
@@ -92,7 +93,8 @@ string_to_token_map = {
     "!": {"token_type": TokenTypes.NOT},
     "'": {"token_type": TokenTypes.QUOTE},
     '"': {"token_type": TokenTypes.DOUBLE_QUOTE},
-    "@": {"token_type": TokenTypes.DOT},
+    ".": {"token_type": TokenTypes.DOT},
+    "@": {"token_type": TokenTypes.AT},
     "index": {"token_type": TokenTypes.HINT_VALUE, "value": HINT_TYPE.INDEX},
     "select": {"token_type": TokenTypes.HINT_VALUE, "value": HINT_TYPE.SELECT},
 }
@@ -111,5 +113,5 @@ merge_rules = {
     f"{TokenTypes.IDENT}_{TokenTypes.QUOTE}": {"token_type": TokenTypes.IDENT},
     f"{TokenTypes.IDENT}_{TokenTypes.DOUBLE_QUOTE}": {"token_type": TokenTypes.IDENT},
     f"{TokenTypes.DIVIDE}_{TokenTypes.DIVIDE}": {"token_type": TokenTypes.COMMENT},
-    f"{TokenTypes.COMMENT}_{TokenTypes.DOT}": {"token_type": TokenTypes.HINT_INIT},
+    f"{TokenTypes.COMMENT}_{TokenTypes.AT}": {"token_type": TokenTypes.HINT_INIT},
 }

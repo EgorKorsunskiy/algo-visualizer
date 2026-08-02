@@ -6,6 +6,7 @@ from parser.ast_entities import (
     CallExprNode,
     IndexExprNode,
     InfixExprNode,
+    MemberAccessExprNode,
     PrefixExprNode,
     SuffixExprNode,
     TypeExprNode,
@@ -47,6 +48,8 @@ class BasicPrattParser:
         self.infixParseFnc[TokenTypes.LT] = self.parseInfixExpr
         self.infixParseFnc[TokenTypes.EQ] = self.parseInfixExpr
         self.infixParseFnc[TokenTypes.LBRACKET] = self.parseIndexExpr
+
+        self.infixParseFnc[TokenTypes.DOT] = self.parseMemberAccessExpr
 
         self.infixParseFnc[TokenTypes.ASSIGN] = self.parseAssignExpr
 
@@ -93,6 +96,13 @@ class BasicPrattParser:
 
         right = self.parseExpr(LOWEST)
         return AssignExprNode(currToken, left, right)
+
+    def parseMemberAccessExpr(self, left):
+        currToken = self.pick()
+        self.next()
+
+        right = self.parseExpr(LOWEST)
+        return MemberAccessExprNode(currToken, left, right)
 
     def parseCallExpr(self):
         currToken = self.pick()
@@ -174,7 +184,7 @@ class BasicPrattParser:
     def getInfixBindingPower(self, op: TokenTypes) -> tuple[int, int]:
         match op:
             case TokenTypes.ASSIGN:
-                return 1
+                return 2
             case TokenTypes.PLUS | TokenTypes.MIN:
                 return 3
             case TokenTypes.MUL | TokenTypes.DIVIDE | TokenTypes.MOD:
@@ -189,5 +199,7 @@ class BasicPrattParser:
                 return 5
             case TokenTypes.INC | TokenTypes.DEC | TokenTypes.LBRACKET:
                 return 6
+            case TokenTypes.DOT:
+                return 7
             case _:
                 return LOWEST
