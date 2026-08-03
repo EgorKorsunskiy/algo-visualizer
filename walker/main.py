@@ -20,7 +20,7 @@ from parser.ast_entities import (
     ReturnStatement,
     SuffixExprNode,
 )
-from utils.main import getTokenType
+from utils.main import get_token_type
 from walker.environment import Environment
 from walker.log import Log
 
@@ -29,10 +29,10 @@ class BasicWalker:
     def __init__(self) -> None:
         self.log = Log()
 
-    def evalLiteral(self, node, env: Environment):
-        if getTokenType(node) == TokenTypes.FALSE:
+    def eval_literal(self, node, env: Environment):
+        if get_token_type(node) == TokenTypes.FALSE:
             return False
-        if getTokenType(node) == TokenTypes.TRUE:
+        if get_token_type(node) == TokenTypes.TRUE:
             return True
         if "value" in node:
             stored_val = env.get(node["value"])
@@ -41,8 +41,8 @@ class BasicWalker:
             return node["value"]
         raise Exception("Literal token has no value property")
 
-    def evalInfixExpr(self, node, env: Environment):
-        match getTokenType(node.tok):
+    def eval_infix_expr(self, node, env: Environment):
+        match get_token_type(node.tok):
             case TokenTypes.PLUS:
                 return self.eval(node.left, env) + self.eval(node.right, env)
             case TokenTypes.MIN:
@@ -65,10 +65,10 @@ class BasicWalker:
             case TokenTypes.EQ:
                 return self.eval(node.left, env) == self.eval(node.right, env)
 
-    def evalPrefixExpr(self, node, env: Environment):
+    def eval_prefix_expr(self, node, env: Environment):
         def update_value(node, result):
             if not isinstance(node.right, AtomicExprNode):
-                raise Exception(f"Invalid left side of {getTokenType(node.tok)}")
+                raise Exception(f"Invalid left side of {get_token_type(node.tok)}")
             self.log.set(
                 Log.get_var_type_from_values(self.eval(node.right, env), result),
                 node.right.tok["value"],
@@ -76,7 +76,7 @@ class BasicWalker:
             )
             env.set(node.right.tok["value"], result, True)
 
-        match getTokenType(node.tok):
+        match get_token_type(node.tok):
             case TokenTypes.MIN:
                 return -self.eval(node.right, env)
             case TokenTypes.INC:
@@ -88,10 +88,10 @@ class BasicWalker:
                 update_value(node, result)
                 return result
 
-    def evalSuffixExpr(self, node, env: Environment):
+    def eval_suffix_expr(self, node, env: Environment):
         def update_value(node, result):
             if not isinstance(node.left, AtomicExprNode):
-                raise Exception(f"Invalid left side of {getTokenType(node.tok)}")
+                raise Exception(f"Invalid left side of {get_token_type(node.tok)}")
             self.log.set(
                 Log.get_var_type_from_values(self.eval(node.left, env), result),
                 node.left.tok["value"],
@@ -99,7 +99,7 @@ class BasicWalker:
             )
             env.set(node.left.tok["value"], result, True)
 
-        match getTokenType(node.tok):
+        match get_token_type(node.tok):
             case TokenTypes.INC:
                 result = self.eval(node.left, env) + 1
                 update_value(node, result)
@@ -109,7 +109,7 @@ class BasicWalker:
                 update_value(node, result)
                 return result
 
-    def evalAssignExpr(self, node, env: Environment):
+    def eval_assign_expr(self, node, env: Environment):
         evaluated_value = self.eval(node.right, env)
         if isinstance(node.left, AtomicExprNode):
             env.set(node.left.tok["value"], evaluated_value, True)
@@ -131,7 +131,7 @@ class BasicWalker:
         else:
             raise Exception("Invalid left side of =")
 
-    def evalMemberAccessExpr(self, node, env: Environment):
+    def eval_member_access_expr(self, node, env: Environment):
         evaluated_value = self.eval(node.left, env)
         # TODO: make it work with complex expression such as (a&b).size()
         evaluated_value_type = env.get("#type_" + node.left.tok["value"])
@@ -141,13 +141,13 @@ class BasicWalker:
             for param in node.right.params:
                 params.append(self.eval(param, env))
             return builtin_functions[evaluated_value_type][function_name](
-                evaluated_value, *params
+                evaluated_value, *params, self.log, node.left.tok["value"]
             )
 
-    def evalArrayExpr(self, node, _: Environment):
+    def eval_array_expr(self, node, _: Environment):
         return list(map(lambda atom: atom.tok["value"], node.values))
 
-    def evalIndexExpr(self, node, env: Environment):
+    def eval_index_expr(self, node, env: Environment):
         evaluated_right = self.eval(node.right, env)
         if not isinstance(node.left, AtomicExprNode):
             raise Exception(f"{node.left} is not valid left side of =")
@@ -158,9 +158,9 @@ class BasicWalker:
             raise Exception(f"Only int can be used for indexing")
         return target[evaluated_right]
 
-    def evalInitStmt(self, node, env: Environment) -> None:
+    def eval_init_stmt(self, node, env: Environment) -> None:
         evaluated_value = self.eval(node.value, env)
-        env.set("#type_" + node.name["value"], node.typeClass)
+        env.set("#type_" + node.name["value"], node.type_class)
         env.set(node.name["value"], evaluated_value)
         self.log.set(
             Log.get_var_type_from_type(node),
@@ -168,11 +168,10 @@ class BasicWalker:
             evaluated_value,
         )
 
-    def evalFnLiteral(self, node, env: Environment) -> None:
-        env.set("#type_" + node.name["value"], node.typeClass)
+    def eval_fn_literal(self, node, env: Environment) -> None:
         env.set(node.name["value"], node)
 
-    def evalFnCallExpr(self, node, env: Environment):
+    def eval_fn_call_expr(self, node, env: Environment):
         fn = env.get(node.tok["value"])
         fn_env = Environment(outer=env)
         for i in range(len(node.params)):
@@ -189,12 +188,12 @@ class BasicWalker:
             )
         return self.eval(fn.body, fn_env)
 
-    def evalReturnStmt(self, node, env: Environment):
+    def eval_return_stmt(self, node, env: Environment):
         evaluated_value = self.eval(node.right, env)
         env.set("_returned", evaluated_value)
         return self.eval(node.right, env)
 
-    def evalBlockStmt(self, node, env):
+    def eval_block_stmt(self, node, env):
         output = None
         for stmt in node.stmts:
             returned = env.get("_returned")
@@ -207,12 +206,12 @@ class BasicWalker:
                 output = result
         return output
 
-    def evalLoopStmt(self, node, env: Environment):
+    def eval_loop_stmt(self, node, env: Environment):
         if isinstance(node.condition, list):
-            return self.evalForStmt(node, env)
-        return self.evalWhileStmt(node, env)
+            return self.eval_for_stmt(node, env)
+        return self.eval_while_stmt(node, env)
 
-    def evalWhileStmt(self, node, env: Environment):
+    def eval_while_stmt(self, node, env: Environment):
         condition = node.condition
         evaluated_condition = self.eval(condition, env)
         output = None
@@ -225,7 +224,7 @@ class BasicWalker:
             evaluated_condition = self.eval(condition, env)
         return output
 
-    def evalForStmt(self, node, env: Environment):
+    def eval_for_stmt(self, node, env: Environment):
         initStmt = node.condition[0]
         condition = node.condition[1]
         stepExpr = node.condition[2]
@@ -244,59 +243,59 @@ class BasicWalker:
             evaluated_condition = self.eval(condition, for_env)
         return output
 
-    def evalConditionStmt(self, node, env: Environment):
+    def eval_condition_stmt(self, node, env: Environment):
         evaluated_condition = self.eval(node.condition, env)
         if evaluated_condition:
             self.log.if_record()
-            return self.eval(node.thenBody, env)
+            return self.eval(node.then_body, env)
         for alternative in node.alternatives.stmts:
             evaluated_condition = self.eval(alternative.condition, env)
             if evaluated_condition:
                 self.log.elif_record()
-                return self.eval(alternative.thenBody, env)
-        if node.rejectBody:
+                return self.eval(alternative.then_body, env)
+        if node.reject_body:
             self.log.else_record()
-            return self.eval(node.rejectBody, env)
+            return self.eval(node.reject_body, env)
 
-    def evalHintStmt(self, node, _: Environment):
-        hintType = node.type
-        hintTarget = node.target.tok["value"]
-        hintValues = list(map(lambda atom: atom.tok["value"], node.values))
-        self.log._create_hint_record(hintType, hintTarget, hintValues)
+    def eval_hint_stmt(self, node, _: Environment):
+        hint_type = node.type
+        hint_target = node.target.tok["value"]
+        hint_values = list(map(lambda atom: atom.tok["value"], node.values))
+        self.log._create_hint_record(hint_type, hint_target, hint_values)
 
     def eval(self, node, env: Environment):
         match node:
             case AtomicExprNode():
-                return self.evalLiteral(node.tok, env)
+                return self.eval_literal(node.tok, env)
             case InfixExprNode():
-                return self.evalInfixExpr(node, env)
+                return self.eval_infix_expr(node, env)
             case PrefixExprNode():
-                return self.evalPrefixExpr(node, env)
+                return self.eval_prefix_expr(node, env)
             case SuffixExprNode():
-                return self.evalSuffixExpr(node, env)
+                return self.eval_suffix_expr(node, env)
             case AssignExprNode():
-                return self.evalAssignExpr(node, env)
+                return self.eval_assign_expr(node, env)
             case ArrayExprNode():
-                return self.evalArrayExpr(node, env)
+                return self.eval_array_expr(node, env)
             case MemberAccessExprNode():
-                return self.evalMemberAccessExpr(node, env)
+                return self.eval_member_access_expr(node, env)
             case IndexExprNode():
-                return self.evalIndexExpr(node, env)
+                return self.eval_index_expr(node, env)
             case InitStmt():
-                return self.evalInitStmt(node, env)
+                return self.eval_init_stmt(node, env)
             case FuncStatement():
-                return self.evalFnLiteral(node, env)
+                return self.eval_fn_literal(node, env)
             case CallExprNode():
-                return self.evalFnCallExpr(node, env)
+                return self.eval_fn_call_expr(node, env)
             case ReturnStatement():
-                return self.evalReturnStmt(node, env)
+                return self.eval_return_stmt(node, env)
             case LoopStmt():
-                return self.evalLoopStmt(node, env)
+                return self.eval_loop_stmt(node, env)
             case IfStmt():
-                return self.evalConditionStmt(node, env)
+                return self.eval_condition_stmt(node, env)
             case ConditionStmt():
-                return self.evalConditionStmt(node, env)
+                return self.eval_condition_stmt(node, env)
             case HintStatement():
-                return self.evalHintStmt(node, env)
+                return self.eval_hint_stmt(node, env)
             case BlockStmt() | ProgrammeNode():
-                return self.evalBlockStmt(node, env)
+                return self.eval_block_stmt(node, env)

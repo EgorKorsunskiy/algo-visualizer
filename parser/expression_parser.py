@@ -11,7 +11,7 @@ from parser.ast_entities import (
     SuffixExprNode,
     TypeExprNode,
 )
-from utils.main import createToken, getTokenType
+from utils.main import create_token, get_token_type
 
 PREFIX = 100
 LOWEST = 0
@@ -20,137 +20,137 @@ LOWEST = 0
 # Parser for expressions
 class BasicPrattParser:
     def __init__(self):
-        self.infixParseFnc = {}
-        self.prefixParseFnc = {}
+        self.infix_parse_fnc = {}
+        self.prefix_parse_fnc = {}
 
-        self.prefixParseFnc[TokenTypes.INC] = self.parsePrefixExpr
-        self.prefixParseFnc[TokenTypes.DEC] = self.parsePrefixExpr
-        self.prefixParseFnc[TokenTypes.MIN] = self.parsePrefixExpr
-        self.prefixParseFnc[TokenTypes.NOT] = self.parsePrefixExpr
-        self.prefixParseFnc[TokenTypes.LBRACE] = self.parseArrayExpr
-        self.prefixParseFnc[TokenTypes.IDENT] = self.parseAtomicExpr
-        self.prefixParseFnc[TokenTypes.INT] = self.parseAtomicExpr
-        self.prefixParseFnc[TokenTypes.TRUE] = self.parseAtomicExpr
-        self.prefixParseFnc[TokenTypes.FALSE] = self.parseAtomicExpr
-        self.prefixParseFnc[TokenTypes.TYPE] = self.parseTypeExpr
-        self.prefixParseFnc[TokenTypes.LPAREN] = self.parseGroupedExpr
-        self.prefixParseFnc[TokenTypes.FN] = self.parseCallExpr
-        self.prefixParseFnc[TokenTypes.LT] = self.parseListExpr
+        self.prefix_parse_fnc[TokenTypes.INC] = self.parse_prefix_expr
+        self.prefix_parse_fnc[TokenTypes.DEC] = self.parse_prefix_expr
+        self.prefix_parse_fnc[TokenTypes.MIN] = self.parse_prefix_expr
+        self.prefix_parse_fnc[TokenTypes.NOT] = self.parse_prefix_expr
+        self.prefix_parse_fnc[TokenTypes.LBRACE] = self.parse_array_expr
+        self.prefix_parse_fnc[TokenTypes.IDENT] = self.parse_atomic_expr
+        self.prefix_parse_fnc[TokenTypes.INT] = self.parse_atomic_expr
+        self.prefix_parse_fnc[TokenTypes.TRUE] = self.parse_atomic_expr
+        self.prefix_parse_fnc[TokenTypes.FALSE] = self.parse_atomic_expr
+        self.prefix_parse_fnc[TokenTypes.TYPE] = self.parse_type_expr
+        self.prefix_parse_fnc[TokenTypes.LPAREN] = self.parse_grouped_expr
+        self.prefix_parse_fnc[TokenTypes.FN] = self.parse_call_expr
+        self.prefix_parse_fnc[TokenTypes.LT] = self.parse_list_expr
 
-        self.infixParseFnc[TokenTypes.PLUS] = self.parseInfixExpr
-        self.infixParseFnc[TokenTypes.MIN] = self.parseInfixExpr
-        self.infixParseFnc[TokenTypes.MUL] = self.parseInfixExpr
-        self.infixParseFnc[TokenTypes.DIVIDE] = self.parseInfixExpr
-        self.infixParseFnc[TokenTypes.MOD] = self.parseInfixExpr
-        self.infixParseFnc[TokenTypes.GTE] = self.parseInfixExpr
-        self.infixParseFnc[TokenTypes.LTE] = self.parseInfixExpr
-        self.infixParseFnc[TokenTypes.GT] = self.parseInfixExpr
-        self.infixParseFnc[TokenTypes.LT] = self.parseInfixExpr
-        self.infixParseFnc[TokenTypes.EQ] = self.parseInfixExpr
-        self.infixParseFnc[TokenTypes.LBRACKET] = self.parseIndexExpr
+        self.infix_parse_fnc[TokenTypes.PLUS] = self.parse_infix_expr
+        self.infix_parse_fnc[TokenTypes.MIN] = self.parse_infix_expr
+        self.infix_parse_fnc[TokenTypes.MUL] = self.parse_infix_expr
+        self.infix_parse_fnc[TokenTypes.DIVIDE] = self.parse_infix_expr
+        self.infix_parse_fnc[TokenTypes.MOD] = self.parse_infix_expr
+        self.infix_parse_fnc[TokenTypes.GTE] = self.parse_infix_expr
+        self.infix_parse_fnc[TokenTypes.LTE] = self.parse_infix_expr
+        self.infix_parse_fnc[TokenTypes.GT] = self.parse_infix_expr
+        self.infix_parse_fnc[TokenTypes.LT] = self.parse_infix_expr
+        self.infix_parse_fnc[TokenTypes.EQ] = self.parse_infix_expr
+        self.infix_parse_fnc[TokenTypes.LBRACKET] = self.parse_index_expr
 
-        self.infixParseFnc[TokenTypes.DOT] = self.parseMemberAccessExpr
+        self.infix_parse_fnc[TokenTypes.DOT] = self.parse_member_access_expr
 
-        self.infixParseFnc[TokenTypes.ASSIGN] = self.parseAssignExpr
+        self.infix_parse_fnc[TokenTypes.ASSIGN] = self.parse_assign_expr
 
-        self.infixParseFnc[TokenTypes.INC] = self.parseSuffixExpr
-        self.infixParseFnc[TokenTypes.DEC] = self.parseSuffixExpr
+        self.infix_parse_fnc[TokenTypes.INC] = self.parse_suffix_expr
+        self.infix_parse_fnc[TokenTypes.DEC] = self.parse_suffix_expr
 
         self.size = None
         self.cursor = None
         self.expr = None
 
-    def parseListExpr(self):
+    def parse_list_expr(self):
         self.next()
         # we can't use TokenTypes.GT because it's already registred as infixParseFunc
-        return self.parseCommaSeparatedList(TokenTypes.EOF)
+        return self.parse_comma_separated_list(TokenTypes.EOF)
 
-    def parseCommaSeparatedList(self, stopToken):
+    def parse_comma_separated_list(self, stopToken):
         values = []
-        while getTokenType(self.pick()) != stopToken:
-            if getTokenType(self.pick()) == TokenTypes.COMMA:
+        while get_token_type(self.pick()) != stopToken:
+            if get_token_type(self.pick()) == TokenTypes.COMMA:
                 self.next()
-            expr = self.parseExpr(LOWEST)
+            expr = self.parse_expr(LOWEST)
             values.append(expr)
         return values
 
-    def parseIndexExpr(self, left):
-        currToken = self.pick()
+    def parse_index_expr(self, left):
+        curr_token = self.pick()
         self.next()
 
-        right = self.parseExpr(LOWEST)
+        right = self.parse_expr(LOWEST)
         # skip RBRACKET
         self.next()
-        return IndexExprNode(currToken, left, right)
+        return IndexExprNode(curr_token, left, right)
 
-    def parseArrayExpr(self):
-        currToken = self.pick()
+    def parse_array_expr(self):
+        curr_token = self.pick()
         self.next()
 
-        values = self.parseCommaSeparatedList(TokenTypes.RBRACE)
-        return ArrayExprNode(currToken, values)
+        values = self.parse_comma_separated_list(TokenTypes.RBRACE)
+        return ArrayExprNode(curr_token, values)
 
-    def parseAssignExpr(self, left):
-        currToken = self.pick()
+    def parse_assign_expr(self, left):
+        curr_token = self.pick()
         self.next()
 
-        right = self.parseExpr(LOWEST)
-        return AssignExprNode(currToken, left, right)
+        right = self.parse_expr(LOWEST)
+        return AssignExprNode(curr_token, left, right)
 
-    def parseMemberAccessExpr(self, left):
-        currToken = self.pick()
+    def parse_member_access_expr(self, left):
+        curr_token = self.pick()
         self.next()
 
-        right = self.parseExpr(LOWEST)
-        return MemberAccessExprNode(currToken, left, right)
+        right = self.parse_expr(LOWEST)
+        return MemberAccessExprNode(curr_token, left, right)
 
-    def parseCallExpr(self):
-        currToken = self.pick()
+    def parse_call_expr(self):
+        curr_token = self.pick()
         self.next()
-        params = self.parseCommaSeparatedList(TokenTypes.RPAREN)
+        params = self.parse_comma_separated_list(TokenTypes.RPAREN)
 
-        return CallExprNode(currToken, params)
+        return CallExprNode(curr_token, params)
 
-    def parseGroupedExpr(self):
+    def parse_grouped_expr(self):
         self.next()
 
-        expr = self.parseExpr(LOWEST)  # "sucks" everything inside braces
-        # There is no infix function for RBRACE so parseExpr will terminate after its appearance
+        expr = self.parse_expr(LOWEST)  # "sucks" everything inside braces
+        # There is no infix function for RBRACE so parse_expr will terminate after its appearance
         # Since the whole expr is now a  prefix, next() will be called so RBRACE token will be skipped
 
         return expr
 
-    def parseAtomicExpr(self):
-        currToken = self.pick()
-        return AtomicExprNode(currToken)
+    def parse_atomic_expr(self):
+        curr_token = self.pick()
+        return AtomicExprNode(curr_token)
 
-    def parseTypeExpr(self):
-        currToken = self.pick()
-        return TypeExprNode(currToken)
+    def parse_type_expr(self):
+        curr_token = self.pick()
+        return TypeExprNode(curr_token)
 
-    def parsePrefixExpr(self):
-        currToken = self.pick()
+    def parse_prefix_expr(self):
+        curr_token = self.pick()
         self.next()
 
-        right = self.parseExpr(PREFIX)
-        return PrefixExprNode(currToken, right)
+        right = self.parse_expr(PREFIX)
+        return PrefixExprNode(curr_token, right)
 
-    def parseSuffixExpr(self, left):
-        currToken = self.pick()
+    def parse_suffix_expr(self, left):
+        curr_token = self.pick()
         self.next()
 
-        return SuffixExprNode(currToken, left)
+        return SuffixExprNode(curr_token, left)
 
-    def parseInfixExpr(self, left):
+    def parse_infix_expr(self, left):
         token = self.pick()
-        bp = self.getInfixBindingPower(getTokenType(token))
+        bp = self.get_infix_binding_power(get_token_type(token))
         self.next()
 
-        right = self.parseExpr(bp)
+        right = self.parse_expr(bp)
 
         return InfixExprNode(token, left, right)
 
-    def setExpr(self, expr: list):
+    def set_expr(self, expr: list):
         self.size = len(expr)
         self.cursor = 0
         self.expr = expr
@@ -158,30 +158,30 @@ class BasicPrattParser:
     def next(self):
         self.cursor += 1
 
-    def getTokensLeft(self):
+    def get_tokens_left(self):
         return self.cursor < self.size
 
     def pick(self):
-        if not self.getTokensLeft():
-            return createToken(TokenTypes.EOF)
+        if not self.get_tokens_left():
+            return create_token(TokenTypes.EOF)
         return self.expr[self.cursor]
 
-    def parseExpr(self, min_bp):
-        if not self.getTokensLeft():
+    def parse_expr(self, min_bp):
+        if not self.get_tokens_left():
             return None
-        prefixFunc = self.prefixParseFnc[getTokenType(self.pick())]
-        left = prefixFunc()
+        prefix_func = self.prefix_parse_fnc[get_token_type(self.pick())]
+        left = prefix_func()
         self.next()
-        currToken = getTokenType(self.pick())
-        if currToken not in self.infixParseFnc:
+        curr_token = get_token_type(self.pick())
+        if curr_token not in self.infix_parse_fnc:
             return left
-        while self.getTokensLeft() and self.getInfixBindingPower(currToken) > min_bp:
-            infixFunc = self.infixParseFnc[currToken]
-            left = infixFunc(left)
-            currToken = getTokenType(self.pick())
+        while self.get_tokens_left() and self.get_infix_binding_power(curr_token) > min_bp:
+            infix_func = self.infix_parse_fnc[curr_token]
+            left = infix_func(left)
+            curr_token = get_token_type(self.pick())
         return left
 
-    def getInfixBindingPower(self, op: TokenTypes) -> tuple[int, int]:
+    def get_infix_binding_power(self, op: TokenTypes) -> tuple[int, int]:
         match op:
             case TokenTypes.ASSIGN:
                 return 2

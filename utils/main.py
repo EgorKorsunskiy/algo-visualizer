@@ -1,8 +1,8 @@
-def getTokenType(val):
+def get_token_type(val):
     return val["token_type"]
 
 
-def createToken(tokenType, value=None):
+def create_token(tokenType, value=None):
     token = {"token_type": tokenType}
     if value is not None:
         token["value"] = value

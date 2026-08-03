@@ -2,11 +2,11 @@ from parser.expression_parser import BasicPrattParser
 
 
 class VectorPrattParser:
-    def __init__(self, prattParser: BasicPrattParser):
-        self.prattParser = prattParser
+    def __init__(self, pratt_parser: BasicPrattParser):
+        self.pratt_parser = pratt_parser
 
-    def setExpr(self, *args, **kwargs):
-        return self.prattParser.setExpr(*args, **kwargs)
+    def set_expr(self, *args, **kwargs):
+        return self.pratt_parser.set_expr(*args, **kwargs)
 
-    def parseExpr(self, *args, **kwargs):
-        return self.prattParser.parseExpr(*args, **kwargs)
+    def parse_expr(self, *args, **kwargs):
+        return self.pratt_parser.parse_expr(*args, **kwargs)

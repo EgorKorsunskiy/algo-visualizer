@@ -19,6 +19,7 @@ def main():
     walker = Walker()
     res = walker.eval(ast, env)
     print(res)
+    print(walker.log.log)
 
 if __name__ == "__main__":
     main()

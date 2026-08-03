@@ -1,4 +1,4 @@
-from tests.test_utils import compareLists, compareTokens
+from tests.test_utils import compare_lists, compare_tokens
 
 class ExprNode:
     def __init__(self, tok=None) -> None:
@@ -11,7 +11,7 @@ class ExprNode:
         if not hasattr(other, "tok"):
             return False
         # for now it's enough to just compare tokens
-        return compareTokens(self.tok, other.tok)
+        return compare_tokens(self.tok, other.tok)
 
 
 class InfixExprNode(ExprNode):
@@ -91,13 +91,13 @@ class ProgrammeNode(BlockStmt):
 
 class InitStmt:
     def __init__(
-        self, type=None, name=None, value=None, length=None, typeClass=None
+        self, type=None, name=None, value=None, length=None, type_class=None
     ) -> None:
         self.type = type
         self.name = name
         self.value = value
-        self.isArray = bool(length)
-        self.typeClass = typeClass
+        self.is_array = bool(length)
+        self.type_class = type_class
         self.length = length
 
     def __repr__(self) -> str:
@@ -125,7 +125,7 @@ class LoopStmt:
 class ConditionStmt:
     def __init__(self) -> None:
         self.condition = None
-        self.thenBody = None
+        self.then_body = None
 
     def __repr__(self) -> str:
         return f"{self.condition}\n"
@@ -134,7 +134,7 @@ class ConditionStmt:
 class IfStmt(ConditionStmt):
     def __init__(self) -> None:
         super().__init__()
-        self.rejectBody = None
+        self.reject_body = None
         self.alternatives: ConditionStmt = None
 
     def __repr__(self) -> str:
@@ -181,5 +181,5 @@ class HintStatement:
         return (
             self.type == other.type
             and self.target == other.target
-            and compareLists(self.values, other.values)
+            and compare_lists(self.values, other.values)
         )

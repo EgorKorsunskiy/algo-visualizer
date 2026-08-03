@@ -4,7 +4,7 @@ from libraries.vector.expression_parser import VectorPrattParser
 from parser.ast_entities import ArrayExprNode, InitStmt
 from parser.expression_parser import BasicPrattParser
 from parser.main import BasicParser
-from utils.main import getTokenType
+from utils.main import get_token_type
 from walker.log import VAR_TYPE
 
 
@@ -12,52 +12,52 @@ class VectorParser:
     def __init__(self, parser: BasicParser) -> None:
         self.keyword = "vector"
         self.parser = parser
-        self.parser.prattParser = VectorPrattParser(BasicPrattParser())
+        self.parser.pratt_parser = VectorPrattParser(BasicPrattParser())
 
-        self.original_parsInitStmt = parser.parseInitStmt
-        self.original_parseInitLeftSide = parser.parseInitLeftSide
-        self.original_parseStmt = parser.parseStmt
+        self.original_parse_init_stmt = parser.parse_init_stmt
+        self.original_parse_init_left_side = parser.parse_init_left_side
+        self.original_parse_stmt = parser.parse_stmt
 
-    def parseInitLeftSide(self):
+    def parse_init_left_side(self):
         if self.parser.pick()["value"] == self.keyword:
-            initTypeTok = self.parser.pick()
+            init_type_tok = self.parser.pick()
             self.parser.next()
             self.parser.expect(TokenTypes.LT)
-            self.parser.indicateChunk(TokenTypes.GT)
-            _ = self.parser.parseExpr()
+            self.parser.indicate_chunk(TokenTypes.GT)
+            _ = self.parser.parse_expr()
             self.parser.expect(TokenTypes.GT)
             self.parser.next()
-            initNameTok = self.parser.pick()
-            initNode = InitStmt()
-            initNode.type = initTypeTok
-            initNode.name = initNameTok
-            initNode.length = -1
-            initNode.typeClass = VAR_TYPE.VECTOR
-            return initNode
+            init_name_tok = self.parser.pick()
+            init_node = InitStmt()
+            init_node.type = init_type_tok
+            init_node.name = init_name_tok
+            init_node.length = -1
+            init_node.type_class = VAR_TYPE.VECTOR
+            return init_node
         else:
-            return self.original_parseInitLeftSide()
+            return self.original_parse_init_left_side()
 
-    def parseInitStmt(self):
-        initStmt = self.original_parsInitStmt()
+    def parse_init_stmt(self):
+        init_stmt = self.original_parse_init_stmt()
         if (
-            isinstance(initStmt.value, ArrayExprNode)
-            and initStmt.type["value"] == self.keyword
+            isinstance(init_stmt.value, ArrayExprNode)
+            and init_stmt.type["value"] == self.keyword
         ):
-            newValue = VectorExprNode(initStmt.value.tok, initStmt.value.values)
-            initStmt.value = newValue
-        return initStmt
+            new_value = VectorExprNode(init_stmt.value.tok, init_stmt.value.values)
+            init_stmt.value = new_value
+        return init_stmt
 
-    def parseStmt(self):
+    def parse_stmt(self):
         if (
-            getTokenType(self.parser.pick()) == TokenTypes.IDENT
+            get_token_type(self.parser.pick()) == TokenTypes.IDENT
             and self.parser.pick()["value"] == self.keyword
         ):
-            return self.parseInitStmt()
+            return self.parse_init_stmt()
         else:
-            return self.original_parseStmt()
+            return self.original_parse_stmt()
 
     def parse(self, *args, **kwargs):
-        self.parser.parseStmt = self.parseStmt
-        self.parser.parseInitStmt = self.parseInitStmt
-        self.parser.parseInitLeftSide = self.parseInitLeftSide
+        self.parser.parse_stmt = self.parse_stmt
+        self.parser.parse_init_stmt = self.parse_init_stmt
+        self.parser.parse_init_left_side = self.parse_init_left_side
         return self.parser.parse(*args, **kwargs)

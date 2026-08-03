@@ -7,13 +7,13 @@ class Lexer:
         # TODO: probably allow for selecting languages different from cpp
         pass
 
-    def augmentToken(self, targetToken, tokenA, tokenB):
-        if targetToken["token_type"] == TokenTypes.FN:
-            targetToken["value"] = tokenA["value"]
-        elif targetToken["token_type"] == TokenTypes.IDENT:
+    def augmentToken(self, target_token, tokenA, tokenB):
+        if target_token["token_type"] == TokenTypes.FN:
+            target_token["value"] = tokenA["value"]
+        elif target_token["token_type"] == TokenTypes.IDENT:
             value = tokenA["value"] if "value" in tokenA else tokenB["value"]
-            targetToken["value"] = value
-        return targetToken
+            target_token["value"] = value
+        return target_token
 
     def merge_tokens(self, tokens: list) -> list:
         new_tokens = []

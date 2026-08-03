@@ -2,7 +2,7 @@ import pytest
 
 from lexer.main import Lexer
 from libraries.main import Parser, Walker
-from tests.test_utils import compareLists
+from tests.test_utils import compare_lists
 from walker.environment import Environment
 from walker.log import COMMAND_TYPE, HINT_TYPE, RECORD_TYPE, VAR_TYPE
 
@@ -44,7 +44,7 @@ class TestLog:
             (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "a", 3, -1),
             (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "a", 10, -1),
         ]
-        assert compareLists(
+        assert compare_lists(
             self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
         )
 
@@ -58,7 +58,7 @@ class TestLog:
             (RECORD_TYPE.COMMAND, COMMAND_TYPE.INSERT, VAR_TYPE.ARRAY, "a", 22, 1),
         ]
 
-        assert compareLists(
+        assert compare_lists(
             self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
         )
 
@@ -78,7 +78,7 @@ class TestLog:
             (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 4, -1),
             (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "g", 5, -1),
         ]
-        assert compareLists(
+        assert compare_lists(
             self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
         )
 
@@ -105,7 +105,7 @@ class TestLog:
             (RECORD_TYPE.COMMAND, COMMAND_TYPE.SET, VAR_TYPE.PRIMITIVE, "i", 5, -1),
         ]
 
-        assert compareLists(
+        assert compare_lists(
             self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
         )
 
@@ -132,7 +132,7 @@ class TestLog:
             (RECORD_TYPE.COMMAND, COMMAND_TYPE.INSERT, VAR_TYPE.ARRAY, "c", 200, 0),
         ]
 
-        assert compareLists(
+        assert compare_lists(
             self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
         )
 
@@ -162,7 +162,7 @@ class TestLog:
             (RECORD_TYPE.COMMAND, COMMAND_TYPE.INSERT, VAR_TYPE.ARRAY, "c", 2, 0),
         ]
 
-        assert compareLists(
+        assert compare_lists(
             self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
         )
 
@@ -192,7 +192,7 @@ class TestLog:
             (RECORD_TYPE.COMMAND, COMMAND_TYPE.INSERT, VAR_TYPE.ARRAY, "c", 0, 0),
         ]
 
-        assert compareLists(
+        assert compare_lists(
             self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
         )
 
@@ -204,7 +204,7 @@ class TestLog:
         ]
         outputs = [[(RECORD_TYPE.HINT, HINT_TYPE.INDEX, "someName", [2, 4])]]
         for i in range(len(inputs)):
-            assert compareLists(
+            assert compare_lists(
                 self._getLog(walker, self._getAst(lexer, parser, inputs[i])).log,
                 outputs[i],
             )

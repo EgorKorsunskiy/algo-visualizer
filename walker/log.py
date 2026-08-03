@@ -42,13 +42,15 @@ class Log:
 
     def _create_command_record(
         self,
-        commandType: COMMAND_TYPE = COMMAND_TYPE.NONE,
-        varType: VAR_TYPE = VAR_TYPE.NONE,
+        command_type: COMMAND_TYPE = COMMAND_TYPE.NONE,
+        var_type: VAR_TYPE = VAR_TYPE.NONE,
         var=None,
         value=None,
         index=-1,
     ):
-        self.log.append((RECORD_TYPE.COMMAND, commandType, varType, var, value, index))
+        self.log.append(
+            (RECORD_TYPE.COMMAND, command_type, var_type, var, value, index)
+        )
 
     def _create_hint_record(
         self, hintType: HINT_TYPE = HINT_TYPE.NONE, target=None, values=None
@@ -57,17 +59,17 @@ class Log:
             values = []
         self.log.append((RECORD_TYPE.HINT, hintType, target, values))
 
-    def set(self, varType, var, value, index=-1):
-        self._create_command_record(COMMAND_TYPE.SET, varType, var, value, index)
+    def set(self, var_type, var, value, index=-1):
+        self._create_command_record(COMMAND_TYPE.SET, var_type, var, value, index)
 
-    def insert(self, varType, var, value, index=-1):
-        self._create_command_record(COMMAND_TYPE.INSERT, varType, var, value, index)
+    def insert(self, var_type, var, value, index=-1):
+        self._create_command_record(COMMAND_TYPE.INSERT, var_type, var, value, index)
 
-    def update(self, varType, var, value, index=-1):
-        self._create_command_record(COMMAND_TYPE.UPDATE, varType, var, value, index)
+    def update(self, var_type, var, value, index=-1):
+        self._create_command_record(COMMAND_TYPE.UPDATE, var_type, var, value, index)
 
-    def delete(self, varType, var, value, index=-1):
-        self._create_command_record(COMMAND_TYPE.DELETE, varType, var, value, index)
+    def delete(self, var_type, var, value, index=-1):
+        self._create_command_record(COMMAND_TYPE.DELETE, var_type, var, value, index)
 
     def while_record(self):
         self._create_command_record(COMMAND_TYPE.WHILE, VAR_TYPE.NONE, None)
@@ -84,23 +86,20 @@ class Log:
     def else_record(self):
         self._create_command_record(COMMAND_TYPE.ELSE, VAR_TYPE.NONE, None)
 
-    def index_record(self, target, values):
-        self._create_hint_record(HINT_TYPE.INDEX, target, values)
-
     @staticmethod
     def get_var_type_from_values(value, assignValue=None):
-        varType = VAR_TYPE.NONE
+        var_type = VAR_TYPE.NONE
         match value:
             case list():
-                varType = VAR_TYPE.ARRAY
+                var_type = VAR_TYPE.ARRAY
             case int() | str():
-                varType = VAR_TYPE.PRIMITIVE
+                var_type = VAR_TYPE.PRIMITIVE
             case _:
                 if assignValue:
-                    varType = Log.get_var_type_from_values(assignValue)
-        return varType
+                    var_type = Log.get_var_type_from_values(assignValue)
+        return var_type
 
     # the method works only with InitStmt because only it contains type information
     @staticmethod
     def get_var_type_from_type(node: InitStmt):
-        return node.typeClass
+        return node.type_class

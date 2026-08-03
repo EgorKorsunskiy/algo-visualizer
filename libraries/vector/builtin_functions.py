@@ -1,11 +1,14 @@
 from typing import Any
 
+from walker.log import VAR_TYPE, Log
+
 
 def size(vector: list[Any]):
     return len(vector)
 
 
-def push_back(vector: list[Any], value):
+def push_back(vector: list[Any], value, log: Log, varName: str):
+    log.insert(VAR_TYPE.VECTOR, varName, value, len(vector))
     vector.append(value)
     return value
 
@@ -26,7 +29,8 @@ def pop_back(vector: list[Any]):
     return vector.pop()
 
 
-def insert(vector: list[Any], index: int, value: Any):
+def insert(vector: list[Any], index: int, value: Any, log: Log, varName: str):
+    log.insert(VAR_TYPE.VECTOR, varName, value, index)
     return vector.insert(index, value)
 
 

@@ -9,13 +9,13 @@ class VectorWalker:
         self.log = self.walker.log
         self.original_eval = walker.eval
 
-    def evalVertexExpr(self, node, _: Environment):
+    def eval_vertex_expr(self, node, _: Environment):
         return list(map(lambda atom: atom.tok["value"], node.values))
 
     def _eval(self, node, env: Environment, *args, **kwargs):
         match node:
             case VectorExprNode():
-                return self.evalVertexExpr(node, env)
+                return self.eval_vertex_expr(node, env)
             case _:
                 return self.original_eval(node, env, *args, **kwargs)
     def eval(self, *args, **kwargs):

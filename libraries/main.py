@@ -1,7 +1,6 @@
 from libraries.vector.paser import VectorParser
 from libraries.vector.walker import VectorWalker
 from parser.main import BasicParser
-from walker.log import VAR_TYPE
 from walker.main import BasicWalker
 
 # Monkey patching approach is used here
