@@ -7,7 +7,7 @@ class Lexer:
         # TODO: probably allow for selecting languages different from cpp
         pass
 
-    def augmentToken(self, target_token, tokenA, tokenB):
+    def augment_token(self, target_token, tokenA, tokenB):
         if target_token["token_type"] == TokenTypes.FN:
             target_token["value"] = tokenA["value"]
         elif target_token["token_type"] == TokenTypes.IDENT:
@@ -25,7 +25,7 @@ class Lexer:
             token_to_insert = None
             if token_couple in merge_rules:
                 token_to_insert = merge_rules[token_couple].copy()
-                token_to_insert = self.augmentToken(
+                token_to_insert = self.augment_token(
                     token_to_insert, tokens[i - 1], tokens[i]
                 )
                 last_insert_index = i
