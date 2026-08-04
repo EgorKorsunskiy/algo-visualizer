@@ -48,29 +48,23 @@ class BasicParser:
         if get_token_type(self.pick()) != tok:
             raise ExpectedError(tok, get_token_type(self.pick()))
 
-    def indicate_body(self):
+    def indicate_chunk(self, min_tok, plus_tok=TokenTypes.NONE):
         # inserts special PARSE_BREAK before the end of a current body
         braces_cnt = 0
         i = 0
         # TODO: quite dangerous statement :). Probably need to be changed
         while True:
-            if get_token_type(self.peek_n(i)) == TokenTypes.LBRACE:
+            if get_token_type(self.peek_n(i)) == plus_tok:
                 braces_cnt += 1
-            elif get_token_type(self.peek_n(i)) == TokenTypes.RBRACE:
+            elif get_token_type(self.peek_n(i)) == min_tok:
                 braces_cnt -= 1
             if braces_cnt < 0:
                 break
             i += 1
         self.tokens.insert(self.cursor + i, {"token_type": TokenTypes.PARSE_BREAK})
 
-    def indicate_chunk(self, stopToken):
-        i = 0
-        # TODO: quite dangerous statement :). Probably need to be changed
-        while True:
-            if get_token_type(self.peek_n(i)) == stopToken:
-                break
-            i += 1
-        self.tokens.insert(self.cursor + i, {"token_type": TokenTypes.PARSE_BREAK})
+    def indicate_body(self):
+        self.indicate_chunk(TokenTypes.RBRACE, TokenTypes.LBRACE)
 
     def parse_body(self):
         bodyStmts = []
@@ -90,7 +84,9 @@ class BasicParser:
         self.expect(TokenTypes.IDENT)
         init_name_tok = self.pick()
         init_length = None
-        if get_token_type(self.peek_n(1)) == TokenTypes.LBRACKET:
+        init_dim = 0
+        while get_token_type(self.peek_n(1)) == TokenTypes.LBRACKET:
+            init_dim += 1
             self.next()
             self.next()
             self.indicate_chunk(TokenTypes.RBRACKET)
@@ -101,7 +97,11 @@ class BasicParser:
         init_node.name = init_name_tok
         init_node.length = init_length
         if init_length is not None:
-            init_node.type_class = VAR_TYPE.ARRAY
+            match init_dim:
+                case 1:
+                    init_node.type_class = VAR_TYPE.ARRAY
+                case 2:
+                    init_node.type_class = VAR_TYPE.ARRAY_2D
         else:
             init_node.type_class = VAR_TYPE.PRIMITIVE
         return init_node

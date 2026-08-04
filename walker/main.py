@@ -144,8 +144,13 @@ class BasicWalker:
                 evaluated_value, *params, self.log, node.left.tok["value"]
             )
 
-    def eval_array_expr(self, node, _: Environment):
-        return list(map(lambda atom: atom.tok["value"], node.values))
+    def eval_array_expr(self, node, env: Environment):
+        return [
+            atom.tok["value"]
+            if isinstance(atom, AtomicExprNode)
+            else self._eval(atom, env)
+            for atom in node.values
+        ]
 
     def eval_index_expr(self, node, env: Environment):
         evaluated_right = self.eval(node.right, env)

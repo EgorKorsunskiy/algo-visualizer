@@ -25,7 +25,9 @@ class VAR_TYPE(Enum):
     NONE = "NONE"
     PRIMITIVE = "PRIMITIVE"
     ARRAY = "ARRAY"
+    ARRAY_2D = "ARRAY_2D"
     VECTOR = "VECTOR"
+    VECTOR_2D = "VECTOR_2D"
     MAP = "MAP"
     GRAPH = "GRAPH"
 

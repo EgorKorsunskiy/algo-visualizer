@@ -1,5 +1,6 @@
 from tests.test_utils import compare_lists, compare_tokens
 
+
 class ExprNode:
     def __init__(self, tok=None) -> None:
         self.tok = tok
@@ -34,8 +35,9 @@ class SuffixExprNode(ExprNode):
 
 
 class ArrayExprNode(ExprNode):
-    def __init__(self, tok=None, values=None) -> None:
+    def __init__(self, tok=None, values=None, type=None) -> None:
         super().__init__(tok)
+        self.type = type
         if values == None:
             values = []
         self.values = values
@@ -60,6 +62,7 @@ class MemberAccessExprNode(ExprNode):
         super().__init__(tok)
         self.left = left
         self.right = right
+
 
 class CallExprNode(ExprNode):
     def __init__(self, tok=None, params=None) -> None:

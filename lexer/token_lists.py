@@ -48,6 +48,7 @@ class TokenTypes(Enum):
     TRUE = auto()
     FALSE = auto()
     # internal tokens
+    NONE = auto()
     PARSE_BREAK = auto()
     EOF = auto()
     FN = auto()
