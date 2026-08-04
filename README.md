@@ -12,3 +12,15 @@ The main goal of this project is to interpret C++ code and generate meaningful l
 - `libraries` directory contains implementations of additional C++ features that are normally provided via `#include <name>`, such as vector. These features are integrated into the existing system using monkey patching.
 
 Additionally, each directory has its own README.md file where the logic is described in greater detail.
+
+## How to run
+Current root `main.py` file contains an example of how to combine and use different pieces of interpreter's logic.
+It's recommended to use `uv` project manager, though it's perfectly possible to run it using `pip`. The steps below use `uv`.
+- `uv sync` - this creates a virtual environment if none exitsted before and installs there all the project dependencies
+- `uv run main.py`
+To manually run the tests, the following command can be used:
+- `uv run python -m pytest`
+
+## Limitations
+Error handling throughout the project is minimal. This is a deliberate trade-off — the interpreter 
+currently assumes it's being fed syntactically valid C++ subset code, rather than trying to report malformed input.

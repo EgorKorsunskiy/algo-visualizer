@@ -1,4 +1,4 @@
-from libraries.vector.paser import VectorParser
+from libraries.vector.parser import VectorParser
 from libraries.vector.walker import VectorWalker
 from parser.main import BasicParser
 from walker.main import BasicWalker
