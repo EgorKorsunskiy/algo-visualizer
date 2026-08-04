@@ -10,3 +10,5 @@ The main goal of this project is to interpret C++ code and generate meaningful l
 - `walker/log.py` file contains the `Log` class, which is used to store the execution history of the program.
 - `tests` directory contains unit tests for the `Lexer`, `Parser`, `Walker`, and `Log` components.
 - `libraries` directory contains implementations of additional C++ features that are normally provided via `#include <name>`, such as vector. These features are integrated into the existing system using monkey patching.
+
+Additionally, each directory has its own README.md file where the logic is described in greater detail.
