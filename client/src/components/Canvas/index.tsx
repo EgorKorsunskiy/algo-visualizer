@@ -10,7 +10,7 @@ export default function Canvas({ logEntries }: TCanvasProps) {
         if (ref.current === null) return
         const visualizer = new Visualizer(logEntries, ref.current)
         visualizer.visualize()
-    }, [])
+    }, [JSON.stringify(logEntries)])
 
     return (
         <canvas className="w-full h-full" ref={ref}></canvas>

@@ -70,5 +70,6 @@ export type IObject = {
     indexes: Record<string, Wrapper>
     ranges: Record<string, Wrapper>
     value: object
+    colorsObject: Record<string, boolean>
     coloring: Array<Array<number>>
 }

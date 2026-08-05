@@ -3,7 +3,7 @@ import { COMMAND_TYPE, HINT_TYPE, IObject, IRange, LogEntry, RECORD_TYPE, TIndex
 import { COLORS } from "@/webgl/helpers/constants";
 import { resizeCanvas } from "@/webgl/helpers/initProgram";
 import { Wrapper } from "./wrapper";
-import { compareArrays } from "./helpers";
+import { compareArrays, createColosObject } from "./helpers";
 
 export class Visualizer {
     log: LogEntry[]
@@ -38,8 +38,9 @@ export class Visualizer {
                             switch (entry.varType) {
                                 case VAR_TYPE.ARRAY:
                                     if (!entry.var || !entry.value) continue
-                                    this._objects[entry.var] = { value: [], indexes: {}, ranges: {}, coloring: [] }
+                                    this._objects[entry.var] = { value: [], indexes: {}, ranges: {}, colorsObject: {}, coloring: [] }
                                     this._objects[entry.var].value = entry.value as object
+                                    this._objects[entry.var].colorsObject = createColosObject()
                                     this._objects[entry.var].coloring = (new Array((entry.value as Array<unknown>).length)).fill(COLORS.BLUE)
                                     this._visualizeArray(entry.var)
                                     break
@@ -57,6 +58,7 @@ export class Visualizer {
                                         const rangeContent = this._rangeVars[currKey].values.content as number[]
                                         if (firstComponent === entry.var) rangeContent[0] = entry.value as number
                                         else if (secondComponent === entry.var) rangeContent[1] = entry.value as number
+                                        console.log(rangeContent)
                                         let start = Math.min(rangeContent[0], rangeContent[1])
                                         let end = Math.max(rangeContent[0], rangeContent[1])
                                         if ((start === -1 || end === -1) || (rangeContent[0] > rangeContent[1])) {
@@ -86,8 +88,9 @@ export class Visualizer {
                                 console.warn("Invalid format for INDEX hint")
                                 continue
                             }
+                            const indexColorsObject = this._objects[entry.target].colorsObject
                             const indexSource = entry.values[0] as string
-                            const indexWrapper = new Wrapper(-1)
+                            const indexWrapper = new Wrapper(-1, indexColorsObject)
                             this._indexVars[indexSource] = { target: entry.target, value: indexWrapper }
                             this._objects[entry.target].indexes[indexSource] = indexWrapper
                             break
@@ -96,10 +99,11 @@ export class Visualizer {
                                 console.warn("Invalid format for INDEX hint")
                                 continue
                             }
+                            const selectColorsObject = this._objects[entry.target].colorsObject
                             const selectSourceFirst = entry.values[0] as string
                             const selectSourceSecond = entry.values[1] as string
                             const selectKey = `${selectSourceFirst}#${selectSourceSecond}`
-                            const selectWrapper = new Wrapper([-1, -1])
+                            const selectWrapper = new Wrapper([-1, -1], selectColorsObject)
                             this._rangeVars[selectKey] = { target: entry.target, values: selectWrapper }
                             this._objects[entry.target].ranges[selectKey] = selectWrapper
                             break

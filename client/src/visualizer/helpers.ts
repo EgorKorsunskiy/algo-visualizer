@@ -1,11 +1,13 @@
 import { COLORS } from "@/webgl/helpers/constants";
 
-const colorsSingleton = Object.fromEntries(Object.keys(COLORS).map(key => [key, true]))
+export function createColosObject() {
+    return Object.fromEntries(Object.keys(COLORS).map(key => [key, true]))
+}
 
-export function getAvailableColor() {
-    for (const key of Object.keys(colorsSingleton)) {
-        if (colorsSingleton[key]) {
-            colorsSingleton[key] = false
+export function getAvailableColor(colorsObject: Record<string, boolean>) {
+    for (const key of Object.keys(colorsObject)) {
+        if (colorsObject[key]) {
+            colorsObject[key] = false
             return COLORS[key as keyof typeof COLORS]
         }
     }

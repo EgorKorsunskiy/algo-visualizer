@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <div className="grid grid-cols-3 bg-zinc-50 font-sans min-h-screen">
       <div className="col-span-1">
-        <EditorWrapper mutateFunc={mutateAsync} />
+        <EditorWrapper logEntries={data || []} mutateFunc={mutateAsync} />
       </div>
       <div className="col-span-2">
         <Canvas logEntries={data || []} />
