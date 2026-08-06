@@ -63,7 +63,9 @@ class BasicPrattParser:
     def parse_list_expr(self):
         self.next()
         # we can't use TokenTypes.GT because it's already registred as infixParseFunc
-        return self.parse_comma_separated_list(TokenTypes.EOF)
+        values = self.parse_comma_separated_list(TokenTypes.EOF)
+        self.next()
+        return values
 
     def parse_comma_separated_list(self, stopToken):
         values = []
@@ -81,6 +83,15 @@ class BasicPrattParser:
         right = self.parse_expr(LOWEST)
         # skip RBRACKET
         self.next()
+        if isinstance(left, IndexExprNode):
+            right = ArrayExprNode(
+                TokenTypes.LBRACKET,
+                [
+                    *(left.right if isinstance(left.right, list) else [left.right]),
+                    right,
+                ],
+            )
+            left = left.left
         return IndexExprNode(curr_token, left, right)
 
     def parse_array_expr(self):
@@ -88,6 +99,7 @@ class BasicPrattParser:
         self.next()
 
         values = self.parse_comma_separated_list(TokenTypes.RBRACE)
+        self.next()
         return ArrayExprNode(curr_token, values)
 
     def parse_assign_expr(self, left):
@@ -108,7 +120,7 @@ class BasicPrattParser:
         curr_token = self.pick()
         self.next()
         params = self.parse_comma_separated_list(TokenTypes.RPAREN)
-
+        self.next()
         return CallExprNode(curr_token, params)
 
     def parse_grouped_expr(self):
@@ -117,15 +129,17 @@ class BasicPrattParser:
         expr = self.parse_expr(LOWEST)  # "sucks" everything inside braces
         # There is no infix function for RBRACE so parse_expr will terminate after its appearance
         # Since the whole expr is now a  prefix, next() will be called so RBRACE token will be skipped
-
+        self.next()
         return expr
 
     def parse_atomic_expr(self):
         curr_token = self.pick()
+        self.next()
         return AtomicExprNode(curr_token)
 
     def parse_type_expr(self):
         curr_token = self.pick()
+        self.next()
         return TypeExprNode(curr_token)
 
     def parse_prefix_expr(self):
@@ -171,11 +185,13 @@ class BasicPrattParser:
             return None
         prefix_func = self.prefix_parse_fnc[get_token_type(self.pick())]
         left = prefix_func()
-        self.next()
+
         curr_token = get_token_type(self.pick())
         if curr_token not in self.infix_parse_fnc:
             return left
-        while self.get_tokens_left() and self.get_infix_binding_power(curr_token) > min_bp:
+        while (
+            self.get_tokens_left() and self.get_infix_binding_power(curr_token) > min_bp
+        ):
             infix_func = self.infix_parse_fnc[curr_token]
             left = infix_func(left)
             curr_token = get_token_type(self.pick())
