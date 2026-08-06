@@ -1,8 +1,8 @@
-from ast import stmt
 import pytest
 
 from lexer.main import Lexer
 from lexer.token_lists import TokenTypes
+from libraries.main import Parser
 from parser.ast_entities import (
     ArrayExprNode,
     AssignExprNode,
@@ -14,9 +14,8 @@ from parser.ast_entities import (
     InitStmt,
     SuffixExprNode,
 )
-from parser.main import Parser
-from tests.test_utils import compareLists, compareTokens, inOrderTraverseAST
-from utils.main import createToken
+from tests.test_utils import compare_lists, in_order_traverse_AST
+from utils.main import create_token
 from walker.log import HINT_TYPE
 
 
@@ -40,19 +39,19 @@ class TestParser:
         if expr is None:
             ast = self._get_ast(lexer, parser, input)
             expr = ast.stmts[0]
-        nodes = inOrderTraverseAST(expr)
+        nodes = in_order_traverse_AST(expr)
         print("Actual result: ", nodes)
         print("Expected result: ", expected)
-        assert compareLists(nodes, expected)
+        assert compare_lists(nodes, expected)
 
     def testSimpleExpressions(self, lexer, parser):
         input = """2+2*4;"""
         expected = [
-            AtomicExprNode(createToken(TokenTypes.INT, 2)),
-            InfixExprNode(createToken(TokenTypes.PLUS)),
-            InfixExprNode(createToken(TokenTypes.INT, 2)),
-            InfixExprNode(createToken(TokenTypes.MUL)),
-            InfixExprNode(createToken(TokenTypes.INT, 4)),
+            AtomicExprNode(create_token(TokenTypes.INT, 2)),
+            InfixExprNode(create_token(TokenTypes.PLUS)),
+            InfixExprNode(create_token(TokenTypes.INT, 2)),
+            InfixExprNode(create_token(TokenTypes.MUL)),
+            InfixExprNode(create_token(TokenTypes.INT, 4)),
         ]
 
         self._run_and_compare_expr(lexer, parser, input, expected)
@@ -60,13 +59,13 @@ class TestParser:
     def testGroupedExpressions(self, lexer, parser):
         input = """(5+(6-2))/7;"""
         expected = [
-            AtomicExprNode(createToken(TokenTypes.INT, 5)),
-            InfixExprNode(createToken(TokenTypes.PLUS)),
-            InfixExprNode(createToken(TokenTypes.INT, 6)),
-            InfixExprNode(createToken(TokenTypes.MIN)),
-            InfixExprNode(createToken(TokenTypes.INT, 2)),
-            InfixExprNode(createToken(TokenTypes.DIVIDE)),
-            InfixExprNode(createToken(TokenTypes.INT, 7)),
+            AtomicExprNode(create_token(TokenTypes.INT, 5)),
+            InfixExprNode(create_token(TokenTypes.PLUS)),
+            InfixExprNode(create_token(TokenTypes.INT, 6)),
+            InfixExprNode(create_token(TokenTypes.MIN)),
+            InfixExprNode(create_token(TokenTypes.INT, 2)),
+            InfixExprNode(create_token(TokenTypes.DIVIDE)),
+            InfixExprNode(create_token(TokenTypes.INT, 7)),
         ]
 
         self._run_and_compare_expr(lexer, parser, input, expected)
@@ -74,9 +73,9 @@ class TestParser:
     def testAssignExpressions(self, lexer, parser):
         input = """b = 123;"""
         expected = [
-            AtomicExprNode(createToken(TokenTypes.IDENT, "b")),
-            AssignExprNode(createToken(TokenTypes.ASSIGN)),
-            AtomicExprNode(createToken(TokenTypes.INT, 123)),
+            AtomicExprNode(create_token(TokenTypes.IDENT, "b")),
+            AssignExprNode(create_token(TokenTypes.ASSIGN)),
+            AtomicExprNode(create_token(TokenTypes.INT, 123)),
         ]
 
         self._run_and_compare_expr(lexer, parser, input, expected)
@@ -86,23 +85,23 @@ class TestParser:
         ast = self._get_ast(lexer, parser, input)
         assert len(ast.stmts[0].values) == 3
         expected = [
-            AtomicExprNode(createToken(TokenTypes.INT, 5)),
-            InfixExprNode(createToken(TokenTypes.PLUS)),
-            AtomicExprNode(createToken(TokenTypes.INT, 3)),
+            AtomicExprNode(create_token(TokenTypes.INT, 5)),
+            InfixExprNode(create_token(TokenTypes.PLUS)),
+            AtomicExprNode(create_token(TokenTypes.INT, 3)),
         ]
 
         self._run_and_compare_expr(
             lexer, parser, input, expected, ast.stmts[0].values[0]
         )
         expected = [
-            AtomicExprNode(createToken(TokenTypes.INT, 10)),
+            AtomicExprNode(create_token(TokenTypes.INT, 10)),
         ]
 
         self._run_and_compare_expr(
             lexer, parser, input, expected, ast.stmts[0].values[1]
         )
         expected = [
-            AtomicExprNode(createToken(TokenTypes.IDENT, "text")),
+            AtomicExprNode(create_token(TokenTypes.IDENT, "text")),
         ]
         self._run_and_compare_expr(
             lexer, parser, input, expected, ast.stmts[0].values[2]
@@ -111,11 +110,11 @@ class TestParser:
     def testIndexExpressions(self, lexer, parser):
         input = """someArray[1+1];"""
         expected = [
-            AtomicExprNode(createToken(TokenTypes.IDENT, "someArray")),
-            IndexExprNode(createToken(TokenTypes.LBRACKET)),
-            AtomicExprNode(createToken(TokenTypes.INT, 1)),
-            InfixExprNode(createToken(TokenTypes.PLUS)),
-            AtomicExprNode(createToken(TokenTypes.INT, 1)),
+            AtomicExprNode(create_token(TokenTypes.IDENT, "someArray")),
+            IndexExprNode(create_token(TokenTypes.LBRACKET)),
+            AtomicExprNode(create_token(TokenTypes.INT, 1)),
+            InfixExprNode(create_token(TokenTypes.PLUS)),
+            AtomicExprNode(create_token(TokenTypes.INT, 1)),
         ]
 
         self._run_and_compare_expr(lexer, parser, input, expected)
@@ -124,12 +123,12 @@ class TestParser:
         input = """int val = getValue(2+2, 10)+6;"""
         ast = self._get_ast(lexer, parser, input)
         assert ast.stmts[0] == InitStmt(
-            createToken(TokenTypes.TYPE, "int"), createToken(TokenTypes.IDENT, "val")
+            create_token(TokenTypes.TYPE, "int"), create_token(TokenTypes.IDENT, "val")
         )
         expected = [
-            CallExprNode(createToken(TokenTypes.FN, "getValue")),
-            InfixExprNode(createToken(TokenTypes.PLUS)),
-            AtomicExprNode(createToken(TokenTypes.INT, 6)),
+            CallExprNode(create_token(TokenTypes.FN, "getValue")),
+            InfixExprNode(create_token(TokenTypes.PLUS)),
+            AtomicExprNode(create_token(TokenTypes.INT, 6)),
         ]
         self._run_and_compare_expr(lexer, parser, input, expected, ast.stmts[0].value)
 
@@ -137,9 +136,9 @@ class TestParser:
         input = """int val = getValue(2+2, 10)+6;"""
         ast = self._get_ast(lexer, parser, input)
         expected_first_param = [
-            AtomicExprNode(createToken(TokenTypes.INT, 2)),
-            InfixExprNode(createToken(TokenTypes.PLUS)),
-            AtomicExprNode(createToken(TokenTypes.INT, 2)),
+            AtomicExprNode(create_token(TokenTypes.INT, 2)),
+            InfixExprNode(create_token(TokenTypes.PLUS)),
+            AtomicExprNode(create_token(TokenTypes.INT, 2)),
         ]
         self._run_and_compare_expr(
             lexer,
@@ -148,7 +147,7 @@ class TestParser:
             expected_first_param,
             ast.stmts[0].value.left.params[0],
         )
-        expected_second_param = [AtomicExprNode(createToken(TokenTypes.INT, 10))]
+        expected_second_param = [AtomicExprNode(create_token(TokenTypes.INT, 10))]
         self._run_and_compare_expr(
             lexer,
             parser,
@@ -162,9 +161,9 @@ class TestParser:
         input = """string b = "Hithere";"""
         ast = self._get_ast(lexer, parser, input)
         assert ast.stmts[0] == InitStmt(
-            createToken(TokenTypes.TYPE, "string"), createToken(TokenTypes.IDENT, "b")
+            create_token(TokenTypes.TYPE, "string"), create_token(TokenTypes.IDENT, "b")
         )
-        expected = [AtomicExprNode(createToken(TokenTypes.IDENT, "Hithere"))]
+        expected = [AtomicExprNode(create_token(TokenTypes.IDENT, "Hithere"))]
         self._run_and_compare_expr(lexer, parser, input, expected, ast.stmts[0].value)
 
     def testArrayInitStatement(self, lexer, parser):
@@ -172,8 +171,8 @@ class TestParser:
         input = """int b[2] = {100, 23};"""
         ast = self._get_ast(lexer, parser, input)
         assert ast.stmts[0] == InitStmt(
-            createToken(TokenTypes.TYPE, "int"),
-            createToken(TokenTypes.IDENT, "b"),
+            create_token(TokenTypes.TYPE, "int"),
+            create_token(TokenTypes.IDENT, "b"),
             None,
             2,
         )
@@ -186,13 +185,13 @@ class TestParser:
         ast = self._get_ast(lexer, parser, input)
         assert len(ast.stmts[0].args) == 2
         assert ast.stmts[0].args[0] == InitStmt(
-            createToken(TokenTypes.TYPE, "int"), createToken(TokenTypes.IDENT, "a")
+            create_token(TokenTypes.TYPE, "int"), create_token(TokenTypes.IDENT, "a")
         )
         assert ast.stmts[0].args[1] == InitStmt(
-            createToken(TokenTypes.TYPE, "string"), createToken(TokenTypes.IDENT, "b")
+            create_token(TokenTypes.TYPE, "string"), create_token(TokenTypes.IDENT, "b")
         )
         assert ast.stmts[0].body.stmts[0] == InitStmt(
-            createToken(TokenTypes.TYPE, "int"), createToken(TokenTypes.IDENT, "c")
+            create_token(TokenTypes.TYPE, "int"), create_token(TokenTypes.IDENT, "c")
         )
 
     def testBlockStatements(self, lexer, parser):
@@ -204,16 +203,16 @@ class TestParser:
             }
         """
         ast = self._get_ast(lexer, parser, input)
-        stmts = ast.stmts[0].thenBody.stmts
+        stmts = ast.stmts[0].then_body.stmts
         assert len(stmts) == 3
         assert stmts[0] == InitStmt(
-            createToken(TokenTypes.TYPE, "int"), createToken(TokenTypes.IDENT, "a")
+            create_token(TokenTypes.TYPE, "int"), create_token(TokenTypes.IDENT, "a")
         )
         assert stmts[1] == InitStmt(
-            createToken(TokenTypes.TYPE, "bool"), createToken(TokenTypes.IDENT, "b")
+            create_token(TokenTypes.TYPE, "bool"), create_token(TokenTypes.IDENT, "b")
         )
         assert stmts[2] == InitStmt(
-            createToken(TokenTypes.TYPE, "string"), createToken(TokenTypes.IDENT, "c")
+            create_token(TokenTypes.TYPE, "string"), create_token(TokenTypes.IDENT, "c")
         )
 
     def testConditionStatements(self, lexer, parser):
@@ -225,15 +224,15 @@ class TestParser:
         ast = self._get_ast(lexer, parser, input)
 
         assert len(ast.stmts) == 1
-        assert ast.stmts[0].thenBody.stmts[0] == InitStmt(
-            createToken(TokenTypes.TYPE, "int"), createToken(TokenTypes.IDENT, "a")
+        assert ast.stmts[0].then_body.stmts[0] == InitStmt(
+            create_token(TokenTypes.TYPE, "int"), create_token(TokenTypes.IDENT, "a")
         )
         assert len(ast.stmts[0].alternatives.stmts) == 1
-        assert ast.stmts[0].alternatives.stmts[0].thenBody.stmts[0] == InitStmt(
-            createToken(TokenTypes.TYPE, "int"), createToken(TokenTypes.IDENT, "b")
+        assert ast.stmts[0].alternatives.stmts[0].then_body.stmts[0] == InitStmt(
+            create_token(TokenTypes.TYPE, "int"), create_token(TokenTypes.IDENT, "b")
         )
-        assert ast.stmts[0].rejectBody.stmts[0] == InitStmt(
-            createToken(TokenTypes.TYPE, "int"), createToken(TokenTypes.IDENT, "c")
+        assert ast.stmts[0].reject_body.stmts[0] == InitStmt(
+            create_token(TokenTypes.TYPE, "int"), create_token(TokenTypes.IDENT, "c")
         )
 
     def testConditionExpressions(self, lexer, parser):
@@ -244,17 +243,17 @@ class TestParser:
         """
         ast = self._get_ast(lexer, parser, input)
         expected_if = [
-            AtomicExprNode(createToken(TokenTypes.IDENT, "a")),
-            InfixExprNode(createToken(TokenTypes.LT)),
-            AtomicExprNode(createToken(TokenTypes.INT, 4)),
+            AtomicExprNode(create_token(TokenTypes.IDENT, "a")),
+            InfixExprNode(create_token(TokenTypes.LT)),
+            AtomicExprNode(create_token(TokenTypes.INT, 4)),
         ]
         self._run_and_compare_expr(
             lexer, parser, input, expected_if, ast.stmts[0].condition
         )
         expected_elif = [
-            AtomicExprNode(createToken(TokenTypes.IDENT, "a")),
-            InfixExprNode(createToken(TokenTypes.LT)),
-            AtomicExprNode(createToken(TokenTypes.INT, 10)),
+            AtomicExprNode(create_token(TokenTypes.IDENT, "a")),
+            InfixExprNode(create_token(TokenTypes.LT)),
+            AtomicExprNode(create_token(TokenTypes.INT, 10)),
         ]
         self._run_and_compare_expr(
             lexer,
@@ -269,9 +268,9 @@ class TestParser:
             while(true) { int a = 1; }
         """
         ast = self._get_ast(lexer, parser, input)
-        assert ast.stmts[0].condition == AtomicExprNode(createToken(TokenTypes.TRUE))
+        assert ast.stmts[0].condition == AtomicExprNode(create_token(TokenTypes.TRUE))
         assert ast.stmts[0].body.stmts[0] == InitStmt(
-            createToken(TokenTypes.TYPE, "int"), createToken(TokenTypes.IDENT, "a")
+            create_token(TokenTypes.TYPE, "int"), create_token(TokenTypes.IDENT, "a")
         )
 
     def testForStatement(self, lexer, parser):
@@ -281,22 +280,22 @@ class TestParser:
         ast = self._get_ast(lexer, parser, input)
         assert len(ast.stmts[0].condition) == 3
         assert ast.stmts[0].condition[0] == InitStmt(
-            createToken(TokenTypes.TYPE, "int"), createToken(TokenTypes.IDENT, "i")
+            create_token(TokenTypes.TYPE, "int"), create_token(TokenTypes.IDENT, "i")
         )
         assert ast.stmts[0].body.stmts[0] == InitStmt(
-            createToken(TokenTypes.TYPE, "int"), createToken(TokenTypes.IDENT, "a")
+            create_token(TokenTypes.TYPE, "int"), create_token(TokenTypes.IDENT, "a")
         )
         expected_second = [
-            AtomicExprNode(createToken(TokenTypes.IDENT, "i")),
-            InfixExprNode(createToken(TokenTypes.LT)),
-            AtomicExprNode(createToken(TokenTypes.IDENT, "n")),
+            AtomicExprNode(create_token(TokenTypes.IDENT, "i")),
+            InfixExprNode(create_token(TokenTypes.LT)),
+            AtomicExprNode(create_token(TokenTypes.IDENT, "n")),
         ]
         self._run_and_compare_expr(
             lexer, parser, input, expected_second, ast.stmts[0].condition[1]
         )
         expected_third = [
-            AtomicExprNode(createToken(TokenTypes.IDENT, "i")),
-            SuffixExprNode(createToken(TokenTypes.INC)),
+            AtomicExprNode(create_token(TokenTypes.IDENT, "i")),
+            SuffixExprNode(create_token(TokenTypes.INC)),
         ]
         self._run_and_compare_expr(
             lexer, parser, input, expected_third, ast.stmts[0].condition[2]
@@ -310,12 +309,12 @@ class TestParser:
         assert isinstance(ast.stmts[0], HintStatement)
         assert ast.stmts[0].type == HINT_TYPE.INDEX
         assert ast.stmts[0].target == AtomicExprNode(
-            createToken(TokenTypes.IDENT, "someName")
+            create_token(TokenTypes.IDENT, "someName")
         )
-        assert compareLists(
+        assert compare_lists(
             ast.stmts[0].values,
             [
-                AtomicExprNode(createToken(TokenTypes.INT, 2)),
-                AtomicExprNode(createToken(TokenTypes.INT, 4)),
+                AtomicExprNode(create_token(TokenTypes.INT, 2)),
+                AtomicExprNode(create_token(TokenTypes.INT, 4)),
             ],
         )

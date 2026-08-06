@@ -1,8 +1,8 @@
 import pytest
 from lexer.main import Lexer
 from lexer.token_lists import TokenTypes
-from tests.test_utils import compareLists
-from utils.main import getTokenType
+from tests.test_utils import compare_lists
+from utils.main import get_token_type
 
 
 @pytest.fixture
@@ -14,10 +14,10 @@ class TestLexer:
     def _run_and_compare_lexer(self, lexer, input, expected_tokens):
         tokens = lexer.parse(input)
         tokens = lexer.tokens_merge_helper(tokens)
-        print("Actual result: ", list(map(lambda token: getTokenType(token), tokens)))
+        print("Actual result: ", list(map(lambda token: get_token_type(token), tokens)))
         print("Expected result: ", expected_tokens)
-        assert compareLists(
-            list(map(lambda token: getTokenType(token), tokens)), expected_tokens
+        assert compare_lists(
+            list(map(lambda token: get_token_type(token), tokens)), expected_tokens
         )
 
     def testTokens(self, lexer):

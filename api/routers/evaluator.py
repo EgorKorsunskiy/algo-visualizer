@@ -4,7 +4,7 @@ from api.models.evaluator_models import ProgramInput
 from api.models.log_models import CommandLogEntry, HintLogEntry
 from lexer.main import Lexer
 from parser.main import Parser
-from utils.main import convertLogListIntoDictList
+from utils.main import convert_log_list_into_dict_list
 from walker.environment import Environment
 from walker.main import Walker
 
@@ -23,5 +23,5 @@ async def evaluate_program(progamInput: ProgramInput):
     walker = Walker()
     walker.eval(ast, env)
 
-    output = convertLogListIntoDictList(walker.log.log)
+    output = convert_log_list_into_dict_list(walker.log.log)
     return output

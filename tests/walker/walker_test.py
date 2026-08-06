@@ -1,9 +1,8 @@
 import pytest
 
 from lexer.main import Lexer
-from parser.main import Parser
+from libraries.main import Parser, Walker
 from walker.environment import Environment
-from walker.main import Walker
 
 
 @pytest.fixture

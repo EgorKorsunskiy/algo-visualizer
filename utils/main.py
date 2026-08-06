@@ -1,18 +1,18 @@
 from walker.log import RECORD_TYPE
 
 
-def getTokenType(val):
+def get_token_type(val):
     return val["token_type"]
 
 
-def createToken(tokenType, value=None):
+def create_token(tokenType, value=None):
     token = {"token_type": tokenType}
     if value is not None:
         token["value"] = value
     return token
 
 
-def convertLogListIntoDictList(log):
+def convert_log_list_into_dict_list(log):
     output = []
     for entry in log:
         if entry[0] == RECORD_TYPE.COMMAND:

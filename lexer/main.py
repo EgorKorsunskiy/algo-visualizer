@@ -7,13 +7,13 @@ class Lexer:
         # TODO: probably allow for selecting languages different from cpp
         pass
 
-    def augmentToken(self, targetToken, tokenA, tokenB):
-        if targetToken["token_type"] == TokenTypes.FN:
-            targetToken["value"] = tokenA["value"]
-        elif targetToken["token_type"] == TokenTypes.IDENT:
+    def augment_token(self, target_token, tokenA, tokenB):
+        if target_token["token_type"] == TokenTypes.FN:
+            target_token["value"] = tokenA["value"]
+        elif target_token["token_type"] == TokenTypes.IDENT:
             value = tokenA["value"] if "value" in tokenA else tokenB["value"]
-            targetToken["value"] = value
-        return targetToken
+            target_token["value"] = value
+        return target_token
 
     def merge_tokens(self, tokens: list) -> list:
         new_tokens = []
@@ -25,7 +25,7 @@ class Lexer:
             token_to_insert = None
             if token_couple in merge_rules:
                 token_to_insert = merge_rules[token_couple].copy()
-                token_to_insert = self.augmentToken(
+                token_to_insert = self.augment_token(
                     token_to_insert, tokens[i - 1], tokens[i]
                 )
                 last_insert_index = i
@@ -80,7 +80,8 @@ class Lexer:
         return self.is_letter(char) or self.is_digit(char)
 
     def is_letter(self, char: str) -> bool:
-        return char.isalpha()
+        special_chars = ["_"]
+        return char.isalpha() or char in special_chars
 
     def is_digit(self, char: str) -> bool:
         return char.isdigit()
