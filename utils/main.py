@@ -18,9 +18,9 @@ def convert_log_list_into_dict_list(log):
         if entry[0] == RECORD_TYPE.COMMAND:
             output.append(
                 {
-                    "recordType": str(entry[0]),
-                    "commandType": str(entry[1]),
-                    "varType": str(entry[2]),
+                    "recordType": entry[0],
+                    "commandType": entry[1],
+                    "varType": entry[2],
                     "var": entry[3],
                     "value": entry[4],
                     "index": entry[5],
@@ -29,8 +29,8 @@ def convert_log_list_into_dict_list(log):
         else:
             output.append(
                 {
-                    "recordType": str(entry[0]),
-                    "hintType": str(entry[1]),
+                    "recordType": entry[0],
+                    "hintType": entry[1],
                     "target": entry[2],
                     "values": entry[3],
                 }

@@ -3,10 +3,9 @@ from fastapi import APIRouter
 from api.models.evaluator_models import ProgramInput
 from api.models.log_models import CommandLogEntry, HintLogEntry
 from lexer.main import Lexer
-from parser.main import Parser
+from libraries.main import Parser, Walker
 from utils.main import convert_log_list_into_dict_list
 from walker.environment import Environment
-from walker.main import Walker
 
 router = APIRouter(prefix="/evaluator")
 
