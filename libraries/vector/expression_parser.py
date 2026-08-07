@@ -24,9 +24,9 @@ class VectorPrattParser:
                     count -= 1
                 elif self.pratt_parser.expr[i] == TokenTypes.LT:
                     count += 1
+                self.pratt_parser.next()
                 if count < 0:
                     break
-                self.pratt_parser.next()
                 local_tokens.append(self.pratt_parser.expr[i])
             self.pratt_parser.next()
             self.pratt_parser.next()

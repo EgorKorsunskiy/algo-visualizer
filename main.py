@@ -3,8 +3,9 @@ from libraries.main import Parser, Walker
 from walker.environment import Environment
 
 FRAGMENT = """
-a = {{1,2,3}, {-1,-2,-4}};
-a[0][1];
+            vector<int> a = {1,2,3};
+                a[1] = 24-13;
+                a[1];
 """
 
 
