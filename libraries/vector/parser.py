@@ -34,10 +34,10 @@ class VectorParser:
             init_node.name = init_name_tok
             init_node.length = -1
 
-            type_key = "vector"
+            type_key = ""
             curr_vector_type = init_node.type
 
-            while curr_vector_type.type is not None:
+            while isinstance(curr_vector_type, VectorType):
                 type_key += curr_vector_type.tok["value"]
                 curr_vector_type = curr_vector_type.type
 
@@ -64,7 +64,9 @@ class VectorParser:
             init_stmt.type, VectorType
         ):
             new_value = VectorExprNode(
-                init_stmt.value.tok, self._get_vector_copy(init_stmt.value.values), init_stmt.type
+                init_stmt.value.tok,
+                self._get_vector_copy(init_stmt.value.values),
+                init_stmt.type,
             )
             init_stmt.value = new_value
         return init_stmt

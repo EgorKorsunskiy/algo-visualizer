@@ -1,6 +1,7 @@
 from enum import Enum, auto
 
 from parser.ast_entities import InitStmt
+from walker.environment import Environment
 
 
 class RECORD_TYPE(Enum):
@@ -88,6 +89,9 @@ class Log:
     def else_record(self):
         self._create_command_record(COMMAND_TYPE.ELSE, VAR_TYPE.NONE, None)
 
+    # this method is limitied because it's unable to distinguish
+    # between complex datatypes such as array and vector, so
+    # get_var_type_from_ident is preffered to this method when dealing with initialized variable
     @staticmethod
     def get_var_type_from_values(value, assignValue=None):
         var_type = VAR_TYPE.NONE
@@ -99,6 +103,11 @@ class Log:
             case _:
                 if assignValue:
                     var_type = Log.get_var_type_from_values(assignValue)
+        return var_type
+
+    @staticmethod
+    def get_var_type_from_ident(ident, env: Environment):
+        var_type = env.get("#type_" + ident)
         return var_type
 
     # the method works only with InitStmt because only it contains type information

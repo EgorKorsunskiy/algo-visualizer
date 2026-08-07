@@ -1,3 +1,4 @@
+from copy import deepcopy
 from lexer.token_lists import TokenTypes
 from libraries.unions import builtin_functions
 from parser.ast_entities import (
@@ -122,8 +123,21 @@ class BasicWalker:
         elif isinstance(node.left, IndexExprNode):
             indexes = self.eval(node.left.right, env)
             varValue = self.eval(node.left.left, env)
+
+            previous_value = deepcopy(env.get(node.left.left.tok["value"]))
+            if not isinstance(indexes, list):
+                previous_value[indexes] = evaluated_value
+            else:
+                # we interate till :-1 because otherwise temp_value would become of primitive type,
+                # hence overwriting it wouldn't change the original array
+                temp_value = previous_value
+                for index in indexes[:-1]:
+                    temp_value = temp_value[index]
+                temp_value[indexes[-1]] = evaluated_value
+            env.set(node.left.left.tok["value"], previous_value, True)
+
             self.log.insert(
-                Log.get_var_type_from_values(varValue, evaluated_value),
+                Log.get_var_type_from_ident(node.left.left.tok["value"], env),
                 node.left.left.tok["value"],
                 evaluated_value,
                 indexes,

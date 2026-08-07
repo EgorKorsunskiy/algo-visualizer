@@ -140,6 +140,16 @@ class TestWalker:
         ]
         assert self._eval(walker, self._getAst(lexer, parser, inputs[0])) == 1
 
+    def testArrayAssignExpressions(self, lexer, parser, walker):
+        inputs = [
+            """
+                int a[3] = {1,2,3};
+                a[0] = 223;
+                a[0];
+            """
+        ]
+        assert self._eval(walker, self._getAst(lexer, parser, inputs[0])) == 223
+
     def testArray2DExpressions(self, lexer, parser, walker):
         inputs = [
             """
@@ -148,6 +158,16 @@ class TestWalker:
             """
         ]
         assert self._eval(walker, self._getAst(lexer, parser, inputs[0])) == -4
+
+    def testArray2DAssignExpressions(self, lexer, parser, walker):
+        inputs = [
+            """
+                int a[2][1] = {{1},{100}};
+                a[0][0] = 222;
+                a[0][0];
+            """
+        ]
+        assert self._eval(walker, self._getAst(lexer, parser, inputs[0])) == 222
     
     def testWhileStatements(self, lexer, parser, walker):
         inputs = [

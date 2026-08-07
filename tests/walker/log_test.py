@@ -76,7 +76,7 @@ class TestLog:
                 [[1, 2, 3], [5, 9, 0]],
                 -1,
             ),
-            (RECORD_TYPE.COMMAND, COMMAND_TYPE.INSERT, VAR_TYPE.ARRAY, "a", 22, [1,2]),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.INSERT, VAR_TYPE.ARRAY_2D, "a", 22, [1,2]),
         ]
 
         assert compare_lists(
