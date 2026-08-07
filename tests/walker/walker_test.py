@@ -139,6 +139,15 @@ class TestWalker:
             """
         ]
         assert self._eval(walker, self._getAst(lexer, parser, inputs[0])) == 1
+
+    def testArray2DExpressions(self, lexer, parser, walker):
+        inputs = [
+            """
+                a = {{1,2,3}, {-1,-2,-4}};
+                a[1][2];
+            """
+        ]
+        assert self._eval(walker, self._getAst(lexer, parser, inputs[0])) == -4
     
     def testWhileStatements(self, lexer, parser, walker):
         inputs = [

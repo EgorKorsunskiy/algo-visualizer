@@ -16,7 +16,7 @@ Additionally, each directory has its own README.md file where the logic is descr
 ## How to run
 Current root `main.py` file contains an example of how to combine and use different pieces of interpreter's logic.
 It's recommended to use `uv` project manager, though it's perfectly possible to run it using `pip`. The steps below use `uv`.
-- `uv sync` - this creates a virtual environment if none exitsted before and installs there all the project dependencies
+- `uv sync` - this creates a virtual environment if none existed before and installs there all the project dependencies
 - `uv run main.py`
 To manually run the tests, the following command can be used:
 - `uv run python -m pytest`

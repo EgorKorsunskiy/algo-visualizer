@@ -62,6 +62,27 @@ class TestLog:
             self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
         )
 
+    def testArray2DExpressions(self, lexer, parser, walker):
+        input = """
+            int a[2][3] = {{1,2,3}, {5,9,0}};
+            a[1][2] = 22;
+        """
+        expected = [
+            (
+                RECORD_TYPE.COMMAND,
+                COMMAND_TYPE.SET,
+                VAR_TYPE.ARRAY_2D,
+                "a",
+                [[1, 2, 3], [5, 9, 0]],
+                -1,
+            ),
+            (RECORD_TYPE.COMMAND, COMMAND_TYPE.INSERT, VAR_TYPE.ARRAY, "a", 22, [1,2]),
+        ]
+
+        assert compare_lists(
+            self._getLog(walker, self._getAst(lexer, parser, input)).log, expected
+        )
+
     def testWhileStatement(self, lexer, parser, walker):
         input = """
             int g = 0;

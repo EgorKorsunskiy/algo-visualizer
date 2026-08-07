@@ -120,13 +120,13 @@ class BasicWalker:
                 evaluated_value,
             )
         elif isinstance(node.left, IndexExprNode):
-            index = self.eval(node.left.right, env)
+            indexes = self.eval(node.left.right, env)
             varValue = self.eval(node.left.left, env)
             self.log.insert(
                 Log.get_var_type_from_values(varValue, evaluated_value),
                 node.left.left.tok["value"],
                 evaluated_value,
-                index,
+                indexes,
             )
         else:
             raise Exception("Invalid left side of =")
@@ -148,20 +148,22 @@ class BasicWalker:
         return [
             atom.tok["value"]
             if isinstance(atom, AtomicExprNode)
-            else self._eval(atom, env)
+            else self.eval(atom, env)
             for atom in node.values
         ]
 
     def eval_index_expr(self, node, env: Environment):
-        evaluated_right = self.eval(node.right, env)
+        indexes = self.eval(node.right, env)
         if not isinstance(node.left, AtomicExprNode):
             raise Exception(f"{node.left} is not valid left side of =")
         target = env.get(node.left.tok["value"])
         if not isinstance(target, list):
             raise Exception(f"{target} can not be indexed")
-        if not isinstance(evaluated_right, int):
-            raise Exception(f"Only int can be used for indexing")
-        return target[evaluated_right]
+        if not isinstance(indexes, list):
+            indexes = [indexes]
+        for index in indexes:
+            target = target[index]
+        return target
 
     def eval_init_stmt(self, node, env: Environment) -> None:
         evaluated_value = self.eval(node.value, env)
