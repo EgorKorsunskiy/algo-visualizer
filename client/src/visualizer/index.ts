@@ -4,6 +4,8 @@ import { COLORS } from "@/webgl/helpers/constants";
 import { resizeCanvas } from "@/webgl/helpers/initProgram";
 import { Wrapper } from "./wrapper";
 import { compareArrays, createColosObject } from "./helpers";
+import { handleArray } from "./handlers/handleArray";
+import { handle2DArray } from "./handlers/handle2DArray";
 
 export class Visualizer {
     log: LogEntry[]
@@ -37,12 +39,16 @@ export class Visualizer {
                         case COMMAND_TYPE.SET:
                             switch (entry.varType) {
                                 case VAR_TYPE.ARRAY:
-                                    if (!entry.var || !entry.value) continue
-                                    this._objects[entry.var] = { value: [], indexes: {}, ranges: {}, colorsObject: {}, coloring: [] }
-                                    this._objects[entry.var].value = entry.value as object
-                                    this._objects[entry.var].colorsObject = createColosObject()
-                                    this._objects[entry.var].coloring = (new Array((entry.value as Array<unknown>).length)).fill(COLORS.BLUE)
-                                    this._visualizeArray(entry.var)
+                                    handleArray(entry, this._objects, this._visualizeArray)
+                                    break
+                                case VAR_TYPE.ARRAY_2D:
+                                    handle2DArray(entry, this._objects, this._visualize2DArray)
+                                    break
+                                case VAR_TYPE.VECTOR:
+                                    handleArray(entry, this._objects, this._visualizeArray)
+                                    break
+                                case VAR_TYPE.VECTOR_2D:
+                                    handle2DArray(entry, this._objects, this._visualize2DArray.bind(this))
                                     break
                                 case VAR_TYPE.PRIMITIVE:
                                     if (!entry.var) break
@@ -128,12 +134,48 @@ export class Visualizer {
                     currentY,
                     this._block_size,
                     this._block_size,
-                    coloring[indx],
+                    coloring[indx] as Array<number>,
                     this._border_width,
                     String(item)
                 )
             }
             currentX += this._block_size + this._border_width
+        }
+    }
+
+    _visualize2DArray(
+        arrayKey: string,
+        highlightStart: Array<number> = [-1, -1],
+        highlightEnd: Array<number> = [-1, -1],
+        color: Array<number> = COLORS.RED,
+        repaint: boolean = false
+    ) {
+        const array = this._objects[arrayKey].value as Array<Array<unknown>>
+        const coloring = this._objects[arrayKey].coloring
+        if (highlightStart.every(x => x != 1) && highlightEnd.every(x => x == -1)) highlightEnd = highlightStart
+        const initialX = this.canvas.width / 2 - (array.length / 2) * this._block_size
+        let currentX = initialX
+        let currentY = this.canvas.height / 2 - this._block_size / 2
+        for (const [rowIndx, row] of array.entries()) {
+            for (const [colIndx, col] of row.entries()) {
+                const inRange = (highlightStart[0] <= rowIndx && rowIndx <= highlightEnd[0]) && (highlightStart[1] <= colIndx && colIndx <= highlightEnd[1])
+                if ((!repaint || inRange) || (repaint && !inRange && compareArrays(coloring[rowIndx][colIndx] as Array<number>, color))) {
+                    coloring[rowIndx][colIndx] = inRange ? color : COLORS.BLUE
+                    drawOutlinedRectangle(
+                        this._gl,
+                        currentX,
+                        currentY,
+                        this._block_size,
+                        this._block_size,
+                        coloring[rowIndx][colIndx] as Array<number>,
+                        this._border_width,
+                        String(col)
+                    )
+                }
+                currentX += this._block_size + this._border_width
+            }
+            currentX = initialX
+            currentY += this._block_size + this._border_width
         }
     }
 }

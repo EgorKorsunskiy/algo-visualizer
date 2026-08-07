@@ -32,6 +32,9 @@ export const VAR_TYPE = {
     NONE: "NONE",
     PRIMITIVE: "PRIMITIVE",
     ARRAY: "ARRAY",
+    ARRAY_2D: "ARRAY_2D",
+    VECTOR: "VECTOR",
+    VECTOR_2D: "VECTOR_2D",
     MAP: "MAP",
     GRAPH: "GRAPH"
 } as const
@@ -66,10 +69,12 @@ export type IRange = {
     values: Wrapper
 }
 
+type coloringItem = number | Array<coloringItem>
+
 export type IObject = {
     indexes: Record<string, Wrapper>
     ranges: Record<string, Wrapper>
     value: object
     colorsObject: Record<string, boolean>
-    coloring: Array<Array<number>>
+    coloring: Array<Array<coloringItem>>
 }
