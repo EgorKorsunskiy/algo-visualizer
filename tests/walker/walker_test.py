@@ -37,8 +37,11 @@ class TestWalker:
             "4 * 5 - 6;",
             "9 + 8 / 2;",
             "(9 + 8) / 2;",
+            "1<<5;",
+            "(1<<4)^(2&7);",
+            "3>>1;"
         ]
-        outputs = [3, 3, 14, 13, 8]
+        outputs = [3, 3, 14, 13, 8, 32, 18, 1]
         for i in range(len(inputs)):
             assert (
                 self._eval(walker, self._getAst(lexer, parser, inputs[i])) == outputs[i]
@@ -50,8 +53,10 @@ class TestWalker:
             "-(3+2);",
             "++2;",
             "4--;",
+            "!false;",
+            "~20;"
         ]
-        outputs = [-5, -5, 3, 3]
+        outputs = [-5, -5, 3, 3, True, -21]
         for i in range(len(inputs)):
             assert (
                 self._eval(walker, self._getAst(lexer, parser, inputs[i])) == outputs[i]

@@ -19,6 +19,14 @@ class TokenTypes(Enum):
     LT = auto()
     INC = auto()
     DEC = auto()
+    B_AND = auto()
+    B_OR = auto()
+    B_XOR = auto()
+    B_NOT = auto()
+    B_LSHIFT = auto()
+    B_RSHIFT = auto()
+    L_AND = auto()
+    L_OR = auto()
     # syntax tokens
     SEMICOL = auto()
     COMMA = auto()
@@ -53,6 +61,7 @@ class TokenTypes(Enum):
     EOF = auto()
     FN = auto()
     AT = auto()
+    ND_PLUG = auto()
     COMMENT = auto()
     HINT_INIT = auto()
     HINT_VALUE = auto()
@@ -83,6 +92,10 @@ string_to_token_map = {
     "*": {"token_type": TokenTypes.MUL},
     "/": {"token_type": TokenTypes.DIVIDE},
     "%": {"token_type": TokenTypes.MOD},
+    "&": {"token_type": TokenTypes.B_AND},
+    "|": {"token_type": TokenTypes.B_OR},
+    "^": {"token_type": TokenTypes.B_XOR},
+    "~": {"token_type": TokenTypes.B_NOT},
     ";": {"token_type": TokenTypes.SEMICOL},
     ",": {"token_type": TokenTypes.COMMA},
     "{": {"token_type": TokenTypes.LBRACE},
@@ -115,4 +128,6 @@ merge_rules = {
     f"{TokenTypes.IDENT}_{TokenTypes.DOUBLE_QUOTE}": {"token_type": TokenTypes.IDENT},
     f"{TokenTypes.DIVIDE}_{TokenTypes.DIVIDE}": {"token_type": TokenTypes.COMMENT},
     f"{TokenTypes.COMMENT}_{TokenTypes.AT}": {"token_type": TokenTypes.HINT_INIT},
+    f"{TokenTypes.B_AND}_{TokenTypes.B_AND}": {"token_type": TokenTypes.L_AND},
+    f"{TokenTypes.B_OR}_{TokenTypes.B_OR}": {"token_type": TokenTypes.L_OR},
 }

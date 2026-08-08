@@ -27,6 +27,7 @@ class BasicPrattParser:
         self.prefix_parse_fnc[TokenTypes.DEC] = self.parse_prefix_expr
         self.prefix_parse_fnc[TokenTypes.MIN] = self.parse_prefix_expr
         self.prefix_parse_fnc[TokenTypes.NOT] = self.parse_prefix_expr
+        self.prefix_parse_fnc[TokenTypes.B_NOT] = self.parse_prefix_expr
         self.prefix_parse_fnc[TokenTypes.LBRACE] = self.parse_array_expr
         self.prefix_parse_fnc[TokenTypes.IDENT] = self.parse_atomic_expr
         self.prefix_parse_fnc[TokenTypes.INT] = self.parse_atomic_expr
@@ -47,7 +48,15 @@ class BasicPrattParser:
         self.infix_parse_fnc[TokenTypes.GT] = self.parse_infix_expr
         self.infix_parse_fnc[TokenTypes.LT] = self.parse_infix_expr
         self.infix_parse_fnc[TokenTypes.EQ] = self.parse_infix_expr
+        self.infix_parse_fnc[TokenTypes.B_AND] = self.parse_infix_expr
+        self.infix_parse_fnc[TokenTypes.B_OR] = self.parse_infix_expr
+        self.infix_parse_fnc[TokenTypes.B_XOR] = self.parse_infix_expr
+        self.infix_parse_fnc[TokenTypes.B_LSHIFT] = self.parse_infix_expr
+        self.infix_parse_fnc[TokenTypes.B_RSHIFT] = self.parse_infix_expr
         self.infix_parse_fnc[TokenTypes.LBRACKET] = self.parse_index_expr
+
+        self.infix_parse_fnc[TokenTypes.L_AND] = self.parse_infix_expr
+        self.infix_parse_fnc[TokenTypes.L_OR] = self.parse_infix_expr
 
         self.infix_parse_fnc[TokenTypes.DOT] = self.parse_member_access_expr
 
@@ -157,8 +166,20 @@ class BasicPrattParser:
 
     def parse_infix_expr(self, left):
         token = self.pick()
-        bp = self.get_infix_binding_power(get_token_type(token))
         self.next()
+
+        if (
+            get_token_type(token) == TokenTypes.GT
+            or get_token_type(token) == TokenTypes.LT
+        ):
+            if get_token_type(self.pick()) == TokenTypes.GT:
+                token = create_token(TokenTypes.B_RSHIFT)
+                self.next()
+            if get_token_type(self.pick()) == TokenTypes.LT:
+                token = create_token(TokenTypes.B_LSHIFT)
+                self.next()
+
+        bp = self.get_infix_binding_power(get_token_type(token))
 
         right = self.parse_expr(bp)
 
@@ -201,9 +222,9 @@ class BasicPrattParser:
         match op:
             case TokenTypes.ASSIGN:
                 return 2
-            case TokenTypes.PLUS | TokenTypes.MIN:
+            case TokenTypes.L_AND | TokenTypes.L_OR:
                 return 3
-            case TokenTypes.MUL | TokenTypes.DIVIDE | TokenTypes.MOD:
+            case TokenTypes.B_AND | TokenTypes.B_OR | TokenTypes.B_XOR:
                 return 4
             case (
                 TokenTypes.LTE
@@ -213,9 +234,15 @@ class BasicPrattParser:
                 | TokenTypes.GT
             ):
                 return 5
-            case TokenTypes.INC | TokenTypes.DEC | TokenTypes.LBRACKET:
+            case TokenTypes.B_LSHIFT | TokenTypes.B_RSHIFT:
                 return 6
-            case TokenTypes.DOT:
+            case TokenTypes.PLUS | TokenTypes.MIN:
                 return 7
+            case TokenTypes.MUL | TokenTypes.DIVIDE | TokenTypes.MOD:
+                return 8
+            case TokenTypes.INC | TokenTypes.DEC | TokenTypes.LBRACKET:
+                return 9
+            case TokenTypes.DOT:
+                return 10
             case _:
                 return LOWEST
