@@ -54,6 +54,16 @@ class BasicWalker:
                 return self.eval(node.left, env) // self.eval(node.right, env)
             case TokenTypes.MOD:
                 return self.eval(node.left, env) % self.eval(node.right, env)
+            case TokenTypes.B_AND:
+                return self.eval(node.left, env) & self.eval(node.right, env)
+            case TokenTypes.B_OR:
+                return self.eval(node.left, env) | self.eval(node.right, env)
+            case TokenTypes.B_XOR:
+                return self.eval(node.left, env) ^ self.eval(node.right, env)
+            case TokenTypes.B_LSHIFT:
+                return self.eval(node.left, env) << self.eval(node.right, env)
+            case TokenTypes.B_RSHIFT:
+                return self.eval(node.left, env) >> self.eval(node.right, env)
             # bool op
             case TokenTypes.LT:
                 return self.eval(node.left, env) < self.eval(node.right, env)
@@ -65,6 +75,10 @@ class BasicWalker:
                 return self.eval(node.left, env) >= self.eval(node.right, env)
             case TokenTypes.EQ:
                 return self.eval(node.left, env) == self.eval(node.right, env)
+            case TokenTypes.L_AND:
+                return self.eval(node.left, env) and self.eval(node.right, env)
+            case TokenTypes.L_OR:
+                return self.eval(node.left, env) or self.eval(node.right, env)
 
     def eval_prefix_expr(self, node, env: Environment):
         def update_value(node, result):
@@ -80,6 +94,8 @@ class BasicWalker:
         match get_token_type(node.tok):
             case TokenTypes.MIN:
                 return -self.eval(node.right, env)
+            case TokenTypes.B_NOT:
+                return ~self.eval(node.right, env)
             case TokenTypes.INC:
                 result = self.eval(node.right, env) + 1
                 update_value(node, result)
@@ -88,6 +104,9 @@ class BasicWalker:
                 result = self.eval(node.right, env) - 1
                 update_value(node, result)
                 return result
+            # bool op
+            case TokenTypes.NOT:
+                return not self.eval(node.right, env)
 
     def eval_suffix_expr(self, node, env: Environment):
         def update_value(node, result):

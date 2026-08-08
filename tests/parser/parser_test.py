@@ -56,6 +56,20 @@ class TestParser:
 
         self._run_and_compare_expr(lexer, parser, input, expected)
 
+    def testSimpleBitExpressions(self, lexer, parser):
+        input = """(1<<4)^(2&7);"""
+        expected = [
+            AtomicExprNode(create_token(TokenTypes.INT, 1)),
+            InfixExprNode(create_token(TokenTypes.B_LSHIFT)),
+            InfixExprNode(create_token(TokenTypes.INT, 4)),
+            InfixExprNode(create_token(TokenTypes.B_XOR)),
+            InfixExprNode(create_token(TokenTypes.INT, 2)),
+            InfixExprNode(create_token(TokenTypes.B_AND)),
+            InfixExprNode(create_token(TokenTypes.INT, 7)),
+        ]
+
+        self._run_and_compare_expr(lexer, parser, input, expected)
+
     def testGroupedExpressions(self, lexer, parser):
         input = """(5+(6-2))/7;"""
         expected = [
