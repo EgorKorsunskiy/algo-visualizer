@@ -1,22 +1,24 @@
 import { drawOutlinedRectangle } from "@/webgl/helpers/drawShapes";
-import { COMMAND_TYPE, HINT_TYPE, IObject, IRange, LogEntry, RECORD_TYPE, TIndex, VAR_TYPE } from "./types";
+import { COMMAND_TYPE, HINT_TYPE, IObject, TRange, IVisualizer, LogEntry, RECORD_TYPE, TIndex, VAR_TYPE } from "./types";
 import { COLORS } from "@/webgl/helpers/constants";
 import { resizeCanvas } from "@/webgl/helpers/initProgram";
 import { Wrapper } from "./wrapper";
-import { compareArrays, createColosObject } from "./helpers";
-import { handleArray } from "./handlers/handleArray";
-import { handle2DArray } from "./handlers/handle2DArray";
+import { compareArrays } from "./helpers";
+import { handleSetArray } from "./setHandlers/handleSetArray";
+import { handleSet2DArray } from "./setHandlers/handleSet2DArray";
+import { handleSetPrimitive } from "./setHandlers/handleSetPrimitive";
+import { handleInsertArray } from "./insertHandlers/handleInsertArray";
 
-export class Visualizer {
-    log: LogEntry[]
-    canvas: HTMLCanvasElement
+export class Visualizer implements IVisualizer {
+    log
+    canvas
 
-    _gl: WebGLRenderingContext
+    _gl
     _block_size = 100
     _border_width = 10
 
     _indexVars: Record<string, TIndex> = {}
-    _rangeVars: Record<string, IRange> = {}
+    _rangeVars: Record<string, TRange> = {}
     _objects: Record<string, IObject> = {}
 
     constructor(log: LogEntry[], canvas: HTMLCanvasElement) {
@@ -39,52 +41,28 @@ export class Visualizer {
                         case COMMAND_TYPE.SET:
                             switch (entry.varType) {
                                 case VAR_TYPE.ARRAY:
-                                    handleArray(entry, this._objects, this._visualizeArray)
+                                    handleSetArray(entry, this._objects, this._visualizeArray.bind(this))
                                     break
                                 case VAR_TYPE.ARRAY_2D:
-                                    handle2DArray(entry, this._objects, this._visualize2DArray)
+                                    handleSet2DArray(entry, this._objects, this._visualize2DArray.bind(this))
                                     break
                                 case VAR_TYPE.VECTOR:
-                                    handleArray(entry, this._objects, this._visualizeArray)
+                                    handleSetArray(entry, this._objects, this._visualizeArray.bind(this))
                                     break
                                 case VAR_TYPE.VECTOR_2D:
-                                    handle2DArray(entry, this._objects, this._visualize2DArray.bind(this))
+                                    handleSet2DArray(entry, this._objects, this._visualize2DArray.bind(this))
                                     break
                                 case VAR_TYPE.PRIMITIVE:
-                                    if (!entry.var) break
-                                    let currKey = entry.var
-                                    for (const key of Object.keys(this._rangeVars)) {
-                                        if (key.includes(currKey)) {
-                                            currKey = key
-                                            break
-                                        }
-                                    }
-                                    if (currKey !== entry.var) {
-                                        const [firstComponent, secondComponent] = currKey.split("#")
-                                        const rangeContent = this._rangeVars[currKey].values.content as number[]
-                                        if (firstComponent === entry.var) rangeContent[0] = entry.value as number
-                                        else if (secondComponent === entry.var) rangeContent[1] = entry.value as number
-                                        console.log(rangeContent)
-                                        let start = Math.min(rangeContent[0], rangeContent[1])
-                                        let end = Math.max(rangeContent[0], rangeContent[1])
-                                        if ((start === -1 || end === -1) || (rangeContent[0] > rangeContent[1])) {
-                                            start = end = -1
-                                        }
-                                        this._visualizeArray(
-                                            this._rangeVars[currKey].target,
-                                            start,
-                                            end,
-                                            this._rangeVars[currKey].values.color,
-                                            true
-                                        )
-                                    }
-                                    if (entry.var in this._indexVars) {
-                                        this._indexVars[entry.var].value.content = entry.value as number
-                                        const color = this._indexVars[entry.var].value.color
-                                        this._visualizeArray(this._indexVars[entry.var].target, entry.value as number, -1, color, true)
-                                    }
+                                    handleSetPrimitive(entry, this._indexVars, this._rangeVars, this._visualizeArray.bind(this))
+                                    break
                             }
                             break
+                        case COMMAND_TYPE.INSERT:
+                            switch (entry.varType) {
+                                case VAR_TYPE.VECTOR:
+                                    handleInsertArray(entry, this._objects, this._visualizeArray.bind(this))
+                                    break
+                            }
                     }
                     break
                 case RECORD_TYPE.HINT:
@@ -118,7 +96,7 @@ export class Visualizer {
             }
         }
     }
-    _visualizeArray(arrayKey: string, highlightStart: number = -1, highlightEnd: number = -1, color: Array<number> = COLORS.RED, repaint: boolean = false) {
+    _visualizeArray(arrayKey: string, highlightStart = -1, highlightEnd = -1, color = COLORS.RED, repaint = false) {
         const array = this._objects[arrayKey].value as Array<unknown>
         const coloring = this._objects[arrayKey].coloring
         if (highlightStart != -1 && highlightEnd == -1) highlightEnd = highlightStart
@@ -145,10 +123,10 @@ export class Visualizer {
 
     _visualize2DArray(
         arrayKey: string,
-        highlightStart: Array<number> = [-1, -1],
-        highlightEnd: Array<number> = [-1, -1],
-        color: Array<number> = COLORS.RED,
-        repaint: boolean = false
+        highlightStart = [-1, -1],
+        highlightEnd = [-1, -1],
+        color = COLORS.RED,
+        repaint = false
     ) {
         const array = this._objects[arrayKey].value as Array<Array<unknown>>
         const coloring = this._objects[arrayKey].coloring

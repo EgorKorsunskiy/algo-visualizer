@@ -1,8 +1,8 @@
 import { COLORS } from "@/webgl/helpers/constants"
 import { createColosObject } from "../helpers"
-import { THandlerArray } from "./handleArray"
+import { THandlerArray } from "./handleSetArray"
 
-export const handle2DArray: THandlerArray = (entry, _objects, _visualizeArray) => {
+export const handleSet2DArray: THandlerArray = (entry, _objects, _visualizeArray) => {
     if (!entry.var || !entry.value) return
     _objects[entry.var] = { value: [], indexes: {}, ranges: {}, colorsObject: {}, coloring: [] }
     _objects[entry.var].value = entry.value as object

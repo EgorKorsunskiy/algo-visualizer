@@ -64,7 +64,7 @@ export type TIndex = {
     value: Wrapper
 }
 
-export type IRange = {
+export type TRange = {
     target: string
     values: Wrapper
 }
@@ -77,4 +77,37 @@ export type IObject = {
     value: object
     colorsObject: Record<string, boolean>
     coloring: Array<Array<coloringItem>>
+}
+
+export type TVisualizeArray = (
+    arrayKey: string,
+    highlightStart?: number,
+    highlightEnd?: number,
+    color?: Array<number>,
+    repaint?: boolean
+) => void
+
+export type TVisualize2DArray = (
+    arrayKey: string,
+    highlightStart?: Array<number>,
+    highlightEnd?: Array<number>,
+    color?: Array<number>,
+    repaint?: boolean
+) => void
+
+export type IndexedContainer<T> = Record<string, T>
+export interface IVisualizer {
+    log: LogEntry[],
+    canvas: HTMLCanvasElement,
+
+    _gl: WebGLRenderingContext,
+    _block_size: number
+    _border_width: number
+
+    _indexVars: IndexedContainer<TIndex>
+    _rangeVars: IndexedContainer<TRange>
+    _objects: IndexedContainer<IObject>,
+    visualize: () => Promise<void>,
+    _visualizeArray: TVisualizeArray,
+    _visualize2DArray: TVisualize2DArray
 }
